@@ -730,6 +730,8 @@ name = "rust-warp-rest-api-backend"
 version = "1.0.0"
 dependencies = [
  "serde",
+ "serde_derive",
+ "serde_json",
  "tokio",
  "warp",
 ]

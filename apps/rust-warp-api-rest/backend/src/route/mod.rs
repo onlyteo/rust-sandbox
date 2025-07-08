@@ -1,11 +1,10 @@
-mod api;
-mod resource;
+mod api_endpoints;
+mod static_resources;
 
-use crate::route::api::post_greetings;
-use crate::route::resource::get_resources;
+use crate::route::api_endpoints::api_endpoints_filter;
+use crate::route::static_resources::static_resources_filter;
 use warp::Filter;
 
-pub fn routes() -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
-    post_greetings()
-        .or(get_resources())
+pub fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    api_endpoints_filter().or(static_resources_filter())
 }
