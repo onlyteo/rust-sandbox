@@ -1,5 +1,8 @@
 use crate::model::greeting::{Greeting, Person};
+use serde::Deserialize;
+use warp::hyper::body::to_bytes;
 use warp::hyper::{Body, Client, Request};
+use warp::Buf;
 
 pub async fn client_post_greeting(person: Person) -> Result<Greeting, warp::Rejection> {
     let body = serde_json::to_string(&person);
@@ -9,11 +12,8 @@ pub async fn client_post_greeting(person: Person) -> Result<Greeting, warp::Reje
         .body(Body::from(body.unwrap()))
         .unwrap();
     let response = client.request(request).await.unwrap();
-    println!("{:#?}", response);
-    let body = response.into_body();
-    println!("{:#?}", body);
-    let greeting = Greeting {
-        message: String::from("Hello, World!"),
-    };
-    Ok(greeting)
+    let body_bytes = to_bytes(response.into_body()).await;
+    let mut deserializer = serde_json::Deserializer::from_reader(body_bytes.unwrap().reader());
+    let greeting = Greeting::deserialize(&mut deserializer);
+    Ok(greeting.unwrap())
 }
