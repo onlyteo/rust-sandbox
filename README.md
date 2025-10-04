@@ -1,14 +1,14 @@
 # Rust Sandbox
 
-[![Rust](https://img.shields.io/badge/kotlin-1.87.0-ffc832.svg?logo=rust&logoColor=ffc832)](https://www.rust-lang.org)
-[![Warp](https://img.shields.io/badge/warp-0.3.7-ffc832.svg?logo=warp&logoColor=ffc832)](https://ktor.io)
-[![Cargo](https://img.shields.io/badge/cargo-0.88.0-ffc832.svg?logo=rust&logoColor=ffc832)](https://www.rust-lang.org)
-[![TypeScript](https://img.shields.io/badge/typescript-5.2.2-3178c6.svg?logo=typescript&logoColor=3178c6)](https://www.typescriptlang.org)
-[![React](https://img.shields.io/badge/react-18.3.1-58c4dc.svg?logo=react&logoColor=58c4dc)](https://react.dev)
+[![Rust](https://img.shields.io/badge/rust-1.90.0-ffc832.svg?logo=rust&logoColor=ffc832)](https://www.rust-lang.org)
+[![Warp](https://img.shields.io/badge/warp-0.4.2-ffc832.svg?logo=warp&logoColor=ffc832)](https://ktor.io)
+[![Cargo](https://img.shields.io/badge/cargo-1.90.0-ffc832.svg?logo=rust&logoColor=ffc832)](https://www.rust-lang.org)
+[![TypeScript](https://img.shields.io/badge/typescript-5.9.3-3178c6.svg?logo=typescript&logoColor=3178c6)](https://www.typescriptlang.org)
+[![React](https://img.shields.io/badge/react-19.2.0-58c4dc.svg?logo=react&logoColor=58c4dc)](https://react.dev)
 [![NodeJS](https://img.shields.io/badge/node.js-stable-417e38.svg?logo=nodedotjs&logoColor=417e38)](https://nodejs.org)
 [![GitHub license](https://img.shields.io/badge/license-Apache_2.0-e97726.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
-This repository contain sandbox projects to showcase features of the [Rust framework](https://www.rust-lang.org).
+This repository contains sandbox projects to showcase features of the [Rust framework](https://www.rust-lang.org).
 
 All examples are written in [Rust](https://www.rust-lang.org) and built using [Cargo](https://www.rust-lang.org).
 
@@ -20,7 +20,7 @@ Read details about the examples in their respective project roots.
 ## Architecture
 ...
 
-The examples typically consists of a `Frontend` and a `Backend` application.
+The examples typically consist of a `Frontend` and a `Backend` application.
 
 ```mermaid
 graph TD
