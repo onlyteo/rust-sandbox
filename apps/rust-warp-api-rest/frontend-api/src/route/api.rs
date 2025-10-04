@@ -2,7 +2,7 @@ use crate::client::client_post_greeting;
 use crate::model::greeting::Person;
 use warp::Filter;
 
-pub fn api_endpoints_filter(
+pub fn api_filter(
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()
         .and(warp::path("api"))
