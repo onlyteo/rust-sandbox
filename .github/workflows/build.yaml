@@ -26,6 +26,6 @@ jobs:
             ~/.cargo/git
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Build with Cargo - backend
-        run: cargo -C ./apps/rust-warp-api-rest/backend/ build
+        run: cargo -Z unstable-options -C ./apps/rust-warp-api-rest/backend/ build
       - name: Build with Cargo - frontend-api
-        run: cargo -C ./apps/rust-warp-api-rest/frontend-api/ build
+        run: cargo -Z unstable-options -C ./apps/rust-warp-api-rest/frontend-api/ build
