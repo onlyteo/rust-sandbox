@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "**/frontend"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "cargo"
+    directory: "**/backend"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "cargo"
+    directory: "**/frontend-api"
+    schedule:
+      interval: "monthly"
