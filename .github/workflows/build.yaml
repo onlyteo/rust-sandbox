@@ -6,14 +6,12 @@ on:
       - main
 
 jobs:
-  build:
-    name: Build
+  build-rust-warp-api-rest:
+    name: Build rust-warp-api-rest
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
-      id-token: write
-      packages: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -27,5 +25,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: Build with Cargo
-        run: cargo build
+      - name: Build with Cargo - backend
+        run: cargo build -C ./apps/rust-warp-api-rest/backend/
+      - name: Build with Cargo - frontend-api
+        run: cargo build -C ./apps/rust-warp-api-rest/frontend-api/
