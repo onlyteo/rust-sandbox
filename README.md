@@ -52,3 +52,9 @@ Most examples implement a "hello world" style logic that returns a greeting mess
 
 * A user inputs the name "John" and clicks "Submit"
 * The system generates a greeting "Hello John!" back to the user
+
+## Links
+* [Rust](https://www.rust-lang.org)
+* [Warp Crate](https://docs.rs/warp)
+* [Tower Crate](https://docs.rs/tower)
+* [Anyhow Crate](https://docs.rs/anyhow)

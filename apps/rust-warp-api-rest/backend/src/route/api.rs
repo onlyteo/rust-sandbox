@@ -1,8 +1,7 @@
 use crate::model::greeting;
 use warp::Filter;
 
-pub fn api_filter(
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn api_filter() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()
         .and(warp::path("api"))
         .and(warp::path("greetings"))
