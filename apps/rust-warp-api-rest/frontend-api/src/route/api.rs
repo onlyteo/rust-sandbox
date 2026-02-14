@@ -1,6 +1,7 @@
 use crate::client::http::post_greeting;
 use crate::model::greeting::Person;
 use warp::Filter;
+use anyhow::Result;
 
 pub fn api_filter() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()

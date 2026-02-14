@@ -1,11 +1,11 @@
-use crate::model::core::Return;
 use crate::model::greeting::{Greeting, Person};
+use anyhow::Result;
 use http_body_util::BodyExt;
 use hyper::{body::Buf, Method, Request, Uri};
 use hyper_util::rt::TokioIo;
 use tokio::net::TcpStream;
 
-pub async fn post_greeting(person: Person) -> Return<Greeting> {
+pub async fn post_greeting(person: Person) -> Result<Greeting> {
     let url = "http://localhost:8081/api/greetings".parse::<Uri>()?;
     let host = url.host().expect("uri has no host");
     let port = url.port_u16().unwrap_or(8081);
