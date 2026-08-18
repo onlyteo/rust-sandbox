@@ -1,8 +1,13 @@
 use crate::model::{Greeting, Person};
-use axum::Json;
+use axum::routing::post;
+use axum::{Json, Router};
 
-pub async fn post_greeting(person: Json<Person>) -> Json<Greeting> {
-    println!("Returning greeting to \"{}\"", person.name);
+pub fn api_routes() -> Router {
+    Router::new().route("/api/greetings", post(post_greeting))
+}
+
+async fn post_greeting(person: Json<Person>) -> Json<Greeting> {
+    tracing::info!("Returning greeting to \"{}\"", person.name);
     let greeting = Greeting {
         message: format!("Hello, {}!", person.name),
     };

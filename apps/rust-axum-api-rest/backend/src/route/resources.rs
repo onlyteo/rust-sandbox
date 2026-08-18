@@ -1,6 +1,7 @@
-use axum::response::Html;
+use axum::Router;
+use tower_http::services::ServeDir;
 
-pub async fn get_resources() -> Html<String> {
-    let index_file = include_str!("../../resources/static/index.html");
-    Html(index_file.to_string())
+pub fn resource_routes() -> Router {
+    let serve_dir = ServeDir::new("resources/static");
+    Router::new().fallback_service(serve_dir)
 }

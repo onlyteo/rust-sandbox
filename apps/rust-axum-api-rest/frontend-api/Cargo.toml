@@ -1,9 +1,15 @@
 [package]
 name = "rust-axum-rest-api-frontend-api"
 version = "1.0.0"
-edition = "2021"
+edition.workspace = true
+
+[lib]
+name = "rust_axum_rest_api_frontend_api"
+path = "src/lib.rs"
 
 [dependencies]
+async_handler = { path = "../../../libs/async_handler" }
+
 axum = { workspace = true}
 tokio = { workspace = true, features = ["full"] }
 tower-http = { workspace = true, features = ["trace"] }
@@ -12,3 +18,4 @@ serde_json = { workspace = true }
 reqwest = { workspace = true, features = ["json"] }
 thiserror = { workspace = true }
 anyhow = { workspace = true }
+tracing = { workspace = true }

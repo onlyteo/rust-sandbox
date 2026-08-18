@@ -1,6 +1,4 @@
-mod client;
-mod model;
-mod route;
+use rust_warp_rest_api_frontend_api::route;
 
 #[tokio::main]
 async fn main() {

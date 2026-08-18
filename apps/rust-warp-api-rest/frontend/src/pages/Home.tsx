@@ -26,7 +26,7 @@ export const Home: FC = (): ReactElement => {
                 <Row>
                     <Col>
                         <h2 className="emphasized-text">Welcome to this Rust example!</h2>
-                        <p>This example shows a React frontend and Rust REST API</p>
+                        <p>This example shows a React frontend and Rust/Warp REST API</p>
                     </Col>
                 </Row>
                 <Row className="mt-5">

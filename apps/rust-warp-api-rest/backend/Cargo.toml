@@ -1,7 +1,11 @@
 [package]
 name = "rust-warp-rest-api-backend"
-version = "0.1.0"
+version = "1.0.0"
 edition.workspace = true
+
+[lib]
+name = "rust_warp_rest_api_backend"
+path = "src/lib.rs"
 
 [dependencies]
 warp = { workspace = true, features = ["server"] }
