@@ -1,0 +1,16 @@
+[package]
+name = "kafka_client"
+version = "1.0.0"
+edition.workspace = true
+
+[dependencies]
+rdkafka = { version = "0.39", features = ["dynamic-linking", "tokio", "tracing"] }
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true, features = ["derive"] }
+kafka_serde = { path = "../kafka_serde" }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+serde_yaml = { workspace = true }
+kafka_serde = { path = "../kafka_serde", features = ["avro"] }

@@ -2,6 +2,9 @@
 resolver = "3"
 members = [
     "libs/async_handler",
+    "libs/yaml_config",
+    "libs/kafka_serde",
+    "libs/kafka_client",
     "apps/rust-warp-api-rest/backend",
     "apps/rust-warp-api-rest/frontend-api",
     "apps/rust-axum-api-rest/backend",
@@ -21,7 +24,9 @@ tower-http = "0.7"
 serde = "1.0"
 serde_json = "1.0"
 serde_derive = "1.0"
+serde_yaml = "0.9"
 bytes = "1.12"
+apache-avro = "0.22"
 http-body-util = "0.1"
 hyper = "1.11"
 hyper-util = "0.1"
