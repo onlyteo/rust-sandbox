@@ -9,6 +9,8 @@ members = [
     "apps/rust-warp-api-rest/frontend-api",
     "apps/rust-axum-api-rest/backend",
     "apps/rust-axum-api-rest/frontend-api",
+    "apps/rust-axum-crud-sqlx/backend",
+    "apps/rust-axum-crud-sqlx/frontend",
 ]
 
 [workspace.package]
@@ -17,6 +19,7 @@ edition = "2024"
 [workspace.dependencies]
 warp = "0.4"
 axum = "0.8"
+askama = "0.16"
 axum-extra = "0.12"
 tokio = "1.53"
 tower = "0.5"

@@ -1,0 +1,22 @@
+[package]
+name = "rust-axum-crud-sqlx-frontend"
+version = "1.0.0"
+edition.workspace = true
+
+[lib]
+name = "rust_axum_crud_sqlx_frontend"
+path = "src/lib.rs"
+
+[dependencies]
+async_handler = { path = "../../../libs/async_handler" }
+
+axum = { workspace = true}
+askama = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tower-http = { workspace = true, features = ["fs", "trace"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+reqwest = { workspace = true, features = ["json"] }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
