@@ -3,6 +3,8 @@ use axum::http::{Method, Request, StatusCode};
 use http_body_util::BodyExt;
 use rust_axum_crud_sqlx_backend::model::dto::{Order, OrderProduct, OrderStatus};
 use rust_axum_crud_sqlx_backend::route;
+use rust_axum_crud_sqlx_backend::service::order::OrderService;
+use rust_axum_crud_sqlx_backend::service::product::ProductService;
 use rust_axum_crud_sqlx_backend::state::AppState;
 use sqlx::PgPool;
 use tower::ServiceExt;
@@ -17,7 +19,9 @@ async fn parse_order(response: axum::response::Response) -> Order {
 
 #[sqlx::test]
 async fn create_order_returns_open_order(pool: PgPool) -> sqlx::Result<()> {
-    let app = route::routes(AppState::new(pool));
+    let order_service = OrderService::new(pool.clone());
+    let product_service = ProductService::new(pool.clone());
+    let app = route::routes(AppState::new(order_service, product_service));
 
     let body = serde_json::json!({
         "products": [{ "id": SEEDED_PRODUCT_ID, "quantity": 2 }]
@@ -50,7 +54,9 @@ async fn create_order_returns_open_order(pool: PgPool) -> sqlx::Result<()> {
 
 #[sqlx::test]
 async fn get_order_by_id_matches_created_order(pool: PgPool) -> sqlx::Result<()> {
-    let app = route::routes(AppState::new(pool));
+    let order_service = OrderService::new(pool.clone());
+    let product_service = ProductService::new(pool.clone());
+    let app = route::routes(AppState::new(order_service, product_service));
 
     let create_body = serde_json::json!({
         "products": [{ "id": SEEDED_PRODUCT_ID, "quantity": 1 }]
@@ -88,7 +94,9 @@ async fn get_order_by_id_matches_created_order(pool: PgPool) -> sqlx::Result<()>
 
 #[sqlx::test]
 async fn get_order_by_missing_id_returns_not_found(pool: PgPool) -> sqlx::Result<()> {
-    let app = route::routes(AppState::new(pool));
+    let order_service = OrderService::new(pool.clone());
+    let product_service = ProductService::new(pool.clone());
+    let app = route::routes(AppState::new(order_service, product_service));
 
     let response = app
         .oneshot(
@@ -107,7 +115,9 @@ async fn get_order_by_missing_id_returns_not_found(pool: PgPool) -> sqlx::Result
 
 #[sqlx::test]
 async fn update_order_status_is_reflected(pool: PgPool) -> sqlx::Result<()> {
-    let app = route::routes(AppState::new(pool));
+    let order_service = OrderService::new(pool.clone());
+    let product_service = ProductService::new(pool.clone());
+    let app = route::routes(AppState::new(order_service, product_service));
 
     let create_body = serde_json::json!({
         "products": [{ "id": SEEDED_PRODUCT_ID, "quantity": 1 }]
@@ -158,7 +168,9 @@ async fn update_order_status_is_reflected(pool: PgPool) -> sqlx::Result<()> {
 
 #[sqlx::test]
 async fn list_orders_includes_created_order(pool: PgPool) -> sqlx::Result<()> {
-    let app = route::routes(AppState::new(pool));
+    let order_service = OrderService::new(pool.clone());
+    let product_service = ProductService::new(pool.clone());
+    let app = route::routes(AppState::new(order_service, product_service));
 
     let create_body = serde_json::json!({
         "products": [{ "id": SEEDED_PRODUCT_ID, "quantity": 1 }]

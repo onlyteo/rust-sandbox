@@ -47,11 +47,21 @@ async fn post_home(
     }
 
     match state
-        .http_client()
+        .orders_service()
         .create_order(state.user().username.clone(), selected_products)
         .await
     {
-        Ok(order) => Redirect::to(&format!("/orders/{}", order.id)).into_response(),
+        Ok(optional_order) => match optional_order {
+            Some(order) => Redirect::to(&format!("/orders/{}", order.id)).into_response(),
+            None => {
+                tracing::error!("Failed to create order");
+                let alert = Alert {
+                    variant: "danger",
+                    message: "Something went wrong, please try again.".to_string(),
+                };
+                render(state, Some(alert)).await
+            }
+        },
         Err(error) => {
             tracing::error!("Failed to create order: {error}");
             let alert = Alert {
@@ -76,7 +86,7 @@ fn selected_products(params: &HashMap<String, String>) -> Vec<OrderProduct> {
 }
 
 async fn render(state: Arc<AppState>, alert: Option<Alert>) -> Response {
-    match state.http_client().list_products().await {
+    match state.product_service().find_products().await {
         Ok(products) => Html(
             IndexTemplate { products, alert }
                 .render()

@@ -5,6 +5,8 @@ use rust_axum_crud_sqlx_backend::config::{
     load_database_config, load_observability_config, load_server_config,
 };
 use rust_axum_crud_sqlx_backend::route;
+use rust_axum_crud_sqlx_backend::service::order::OrderService;
+use rust_axum_crud_sqlx_backend::service::product::ProductService;
 use rust_axum_crud_sqlx_backend::state::AppState;
 use sqlx::postgres::PgPoolOptions;
 use tokio::task::JoinHandle;
@@ -22,7 +24,10 @@ async fn main() -> anyhow::Result<()> {
         .await?;
     sqlx::migrate!("./migrations").run(&pool).await?;
 
-    let state = AppState::new(pool);
+    let order_service = OrderService::new(pool.clone());
+    let product_service = ProductService::new(pool.clone());
+
+    let state = AppState::new(order_service, product_service);
     let routes = route::routes(state);
     let server_task = web_server(routes).await;
     let signal_task = shutdown_signal();

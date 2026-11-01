@@ -1,13 +1,17 @@
-name: Build Everything
+name: rust-axum-crud-sqlx
 
 on:
   push:
     branches:
       - main
 
+env:
+  APP: rust-axum-crud-sqlx
+
 jobs:
-  build-rust-warp-api-rest:
-    name: Build rust-warp-api-rest
+  cargo-build:
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    name: Cargo Build
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -25,7 +29,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: Build with Cargo - backend
-        run: cargo build --manifest-path=./apps/rust-warp-api-rest/backend/Cargo.toml
-      - name: Build with Cargo - frontend-api
-        run: cargo build --manifest-path=./apps/rust-warp-api-rest/frontend-api/Cargo.toml
+      - name: Build backend
+        run: cargo build --manifest-path=./apps/${{ env.APP }}/backend/Cargo.toml
+      - name: Build frontend
+        run: cargo build --manifest-path=./apps/${{ env.APP }}/frontend/Cargo.toml

@@ -50,7 +50,7 @@ struct Alert {
 }
 
 async fn get_orders(State(state): State<Arc<AppState>>) -> Response {
-    match state.http_client().list_orders().await {
+    match state.orders_service().find_orders().await {
         Ok(orders) => {
             let orders = orders
                 .into_iter()
@@ -91,8 +91,14 @@ async fn post_order_status(
         return render_order_detail(state, id, Some(alert)).await;
     };
 
-    let order = match state.http_client().get_order(id).await {
-        Ok(order) => order,
+    let order = match state.orders_service().get_order_by_id(id).await {
+        Ok(optional_order) => match optional_order {
+            Some(order) => order,
+            None => {
+                tracing::error!("Failed to fetch order {id}");
+                return (StatusCode::NOT_FOUND, "Order not found").into_response();
+            }
+        },
         Err(error) => {
             tracing::error!("Failed to fetch order {id}: {error}");
             return (StatusCode::NOT_FOUND, "Order not found").into_response();
@@ -100,7 +106,7 @@ async fn post_order_status(
     };
 
     match state
-        .http_client()
+        .orders_service()
         .update_order(id, status, order.products)
         .await
     {
@@ -117,16 +123,22 @@ async fn post_order_status(
 }
 
 async fn render_order_detail(state: Arc<AppState>, id: Uuid, alert: Option<Alert>) -> Response {
-    let order = match state.http_client().get_order(id).await {
-        Ok(order) => order,
+    let order = match state.orders_service().get_order_by_id(id).await {
+        Ok(optional_order) => match optional_order {
+            Some(order) => order,
+            None => {
+                tracing::error!("Failed to fetch order {id}");
+                return (StatusCode::NOT_FOUND, "Order not found").into_response();
+            }
+        },
         Err(error) => {
             tracing::error!("Failed to fetch order {id}: {error}");
             return (StatusCode::NOT_FOUND, "Order not found").into_response();
         }
     };
     let products = state
-        .http_client()
-        .list_products()
+        .product_service()
+        .find_products()
         .await
         .unwrap_or_default();
 

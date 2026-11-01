@@ -1,51 +1,35 @@
 use std::sync::Arc;
 
-use anyhow::{Result, anyhow};
 use reqwest::{Client, StatusCode};
 use uuid::Uuid;
 
-use crate::model::{
-    CreateOrderRequest, Order, OrderProduct, OrderStatus, Product, UpdateOrderRequest,
-};
+use crate::model::{CreateOrderRequest, Order, OrderProduct, OrderStatus, UpdateOrderRequest};
 
-#[derive(Clone)]
-pub struct HttpClient {
-    client: Client,
+pub struct OrderService {
+    client: Arc<Client>,
     base_url: String,
 }
 
-impl HttpClient {
-    pub fn new(base_url: String) -> Arc<Self> {
-        Arc::new(Self {
-            client: Client::new(),
-            base_url,
-        })
+impl OrderService {
+    pub fn new(client: Arc<Client>, base_url: String) -> Arc<Self> {
+        Arc::new(Self { client, base_url })
     }
 
-    pub async fn list_products(&self) -> Result<Vec<Product>> {
-        let url = format!("{}/api/products", self.base_url);
-        let response = self.client.get(&url).send().await?;
-        match response.status() {
-            StatusCode::OK => Ok(response.json().await?),
-            status => Err(anyhow!("Unexpected status code: {status}")),
-        }
-    }
-
-    pub async fn list_orders(&self) -> Result<Vec<Order>> {
-        let url = format!("{}/api/orders", self.base_url);
-        let response = self.client.get(&url).send().await?;
-        match response.status() {
-            StatusCode::OK => Ok(response.json().await?),
-            status => Err(anyhow!("Unexpected status code: {status}")),
-        }
-    }
-
-    pub async fn get_order(&self, id: Uuid) -> Result<Order> {
+    pub async fn get_order_by_id(&self, id: Uuid) -> anyhow::Result<Option<Order>> {
         let url = format!("{}/api/orders/{id}", self.base_url);
         let response = self.client.get(&url).send().await?;
         match response.status() {
             StatusCode::OK => Ok(response.json().await?),
-            status => Err(anyhow!("Unexpected status code: {status}")),
+            status => Err(anyhow::anyhow!("Unexpected status code: {status}")),
+        }
+    }
+
+    pub async fn find_orders(&self) -> anyhow::Result<Vec<Order>> {
+        let url = format!("{}/api/orders", self.base_url);
+        let response = self.client.get(&url).send().await?;
+        match response.status() {
+            StatusCode::OK => Ok(response.json().await?),
+            status => Err(anyhow::anyhow!("Unexpected status code: {status}")),
         }
     }
 
@@ -53,7 +37,7 @@ impl HttpClient {
         &self,
         username: String,
         products: Vec<OrderProduct>,
-    ) -> Result<Order> {
+    ) -> anyhow::Result<Option<Order>> {
         let url = format!("{}/api/orders", self.base_url);
         let response = self
             .client
@@ -63,7 +47,7 @@ impl HttpClient {
             .await?;
         match response.status() {
             StatusCode::CREATED => Ok(response.json().await?),
-            status => Err(anyhow!("Unexpected status code: {status}")),
+            status => Err(anyhow::anyhow!("Unexpected status code: {status}")),
         }
     }
 
@@ -72,7 +56,7 @@ impl HttpClient {
         id: Uuid,
         status: OrderStatus,
         products: Vec<OrderProduct>,
-    ) -> Result<Order> {
+    ) -> anyhow::Result<Option<Order>> {
         let url = format!("{}/api/orders/{id}", self.base_url);
         let response = self
             .client
@@ -82,7 +66,7 @@ impl HttpClient {
             .await?;
         match response.status() {
             StatusCode::OK => Ok(response.json().await?),
-            status => Err(anyhow!("Unexpected status code: {status}")),
+            status => Err(anyhow::anyhow!("Unexpected status code: {status}")),
         }
     }
 }

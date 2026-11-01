@@ -3,13 +3,17 @@ use axum::http::{Request, StatusCode};
 use http_body_util::BodyExt;
 use rust_axum_crud_sqlx_backend::model::dto::Product;
 use rust_axum_crud_sqlx_backend::route;
+use rust_axum_crud_sqlx_backend::service::order::OrderService;
+use rust_axum_crud_sqlx_backend::service::product::ProductService;
 use rust_axum_crud_sqlx_backend::state::AppState;
 use sqlx::PgPool;
 use tower::ServiceExt;
 
 #[sqlx::test]
 async fn list_products_returns_seeded_rows(pool: PgPool) -> sqlx::Result<()> {
-    let app = route::routes(AppState::new(pool));
+    let order_service = OrderService::new(pool.clone());
+    let product_service = ProductService::new(pool.clone());
+    let app = route::routes(AppState::new(order_service, product_service));
 
     let response = app
         .oneshot(
