@@ -3,6 +3,7 @@ resolver = "3"
 members = [
     "libs/async_handler",
     "libs/yaml_config",
+    "libs/observability",
     "libs/kafka_serde",
     "libs/kafka_client",
     "apps/rust-warp-api-rest/backend",
@@ -21,7 +22,7 @@ warp = "0.4"
 axum = "0.8"
 askama = "0.16"
 axum-extra = "0.12"
-tokio = "1.53"
+tokio = "1.54"
 tower = "0.5"
 tower-http = "0.7"
 serde = "1.0"
@@ -31,11 +32,14 @@ serde_yaml = "0.9"
 bytes = "1.12"
 apache-avro = "0.22"
 http-body-util = "0.1"
-hyper = "1.11"
+hyper = "1.12"
 hyper-util = "0.1"
 reqwest = "0.13"
-sqlx = "0.9"
+sqlx = { version = "0.9", features = ["postgres", "uuid", "macros", "chrono"] }
+uuid = "1.29"
 tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 dotenv = "0.15"
 thiserror = "2.0"
 anyhow = "1.0"
+chrono = { version = "0.4", features = ["serde"] }

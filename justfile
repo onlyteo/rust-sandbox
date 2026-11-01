@@ -1,32 +1,74 @@
-docker-wiremock-up:
+## GENERIC ##
+
+# List all apps
+apps:
+    @ls -1 apps/
+
+# List all libs
+libs:
+    @ls -1 libs/
+
+# List folders tracked by git
+tree:
+    tree --gitignore -d
+
+## CARGO ##
+
+# Clean workspace
+clean:
+    cargo clean
+
+# Run check for workspace or a specific app
+check app="":
+    cargo check {{ if app == "" { "--workspace" } else { "-p " + app } }}
+
+# Build workspace or a specific app
+build app="":
+    cargo build {{ if app == "" { "--workspace" } else { "-p " + app } }}
+
+# Run tests for workspace or a specific app
+test app="":
+    cargo nextest run {{ if app == "" { "--workspace" } else { "-p " + app } }}
+
+# Run clippy linting for workspace or a specific app
+clippy app="":
+    cargo clippy {{ if app == "" { "--workspace" } else { "-p " + app } }} -- -D warnings
+
+# Run a specific app
+run app:
+    cargo run -p {{app}}
+
+## DOCKER ##
+
+wiremock-up:
     docker compose -f ./docker/wiremock/docker-compose.yaml up -d
 
-docker-wiremock-stop:
+wiremock-stop:
     docker compose -f ./docker/wiremock/docker-compose.yaml stop
 
-docker-wiremock-down:
-    docker compose -f ./docker/wiremock/docker-compose.yaml down
+wiremock-down:
+    docker compose -f ./docker/wiremock/docker-compose.yaml down -v
 
-docker-postgres-up:
+postgres-up:
     docker compose -f ./docker/postgres/docker-compose.yaml up -d
 
-docker-postgres-stop:
+postgres-stop:
     docker compose -f ./docker/postgres/docker-compose.yaml stop
 
-docker-postgres-down:
-    docker compose -f ./docker/postgres/docker-compose.yaml down
+postgres-down:
+    docker compose -f ./docker/postgres/docker-compose.yaml down -v
 
-docker-kafka-up:
+kafka-up:
     docker compose -f ./docker/kafka/docker-compose.yaml up -d
 
-docker-kafka-stop:
+kafka-stop:
     docker compose -f ./docker/kafka/docker-compose.yaml stop
 
-docker-kafka-down:
-    docker compose -f ./docker/kafka/docker-compose.yaml down
+kafka-down:
+    docker compose -f ./docker/kafka/docker-compose.yaml down -v
 
-docker-up: docker-wiremock-up docker-postgres-up docker-kafka-up
+docker-up: wiremock-up postgres-up kafka-up
 
-docker-stop: docker-wiremock-stop docker-postgres-stop docker-kafka-stop
+docker-stop: wiremock-stop postgres-stop kafka-stop
 
-docker-down: docker-wiremock-down docker-postgres-down docker-kafka-down
+docker-down: wiremock-down postgres-down kafka-down

@@ -1,8 +1,20 @@
+mod home;
+mod orders;
 mod resources;
 
-use crate::route::resources::resource_routes;
+use std::sync::Arc;
+
 use axum::Router;
 
-pub fn routes() -> Router {
-    Router::new().merge(resource_routes())
+use crate::route::home::home_routes;
+use crate::route::orders::order_routes;
+use crate::route::resources::resource_routes;
+use crate::state::AppState;
+
+pub fn routes(state: Arc<AppState>) -> Router {
+    Router::new()
+        .merge(resource_routes())
+        .merge(home_routes())
+        .merge(order_routes())
+        .with_state(state)
 }

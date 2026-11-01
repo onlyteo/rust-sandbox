@@ -1,0 +1,2 @@
+url: postgres://root:abcd1234@postgres:5432/root
+max_connections: 5

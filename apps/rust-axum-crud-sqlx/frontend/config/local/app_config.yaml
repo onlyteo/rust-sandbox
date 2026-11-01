@@ -1,0 +1,5 @@
+user:
+  name: Luke Skywalker
+  username: skywalker
+backend:
+  url: http://localhost:8081
