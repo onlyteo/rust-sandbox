@@ -3,12 +3,17 @@ name = "rust-axum-rest-api-frontend-api"
 version = "1.0.0"
 edition.workspace = true
 
+[features]
+docker = []
+
 [lib]
 name = "rust_axum_rest_api_frontend_api"
 path = "src/lib.rs"
 
 [dependencies]
-async_handler = { path = "../../../libs/async_handler" }
+server = { path = "../../../libs/server", features = ["axum", "tokio"] }
+yaml_config = { path = "../../../libs/yaml_config" }
+observability = { path = "../../../libs/observability" }
 
 axum = { workspace = true}
 tokio = { workspace = true, features = ["full"] }

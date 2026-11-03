@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Rust Sandbox</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="/webjars/font-awesome/css/all.min.css" />
+        <link rel="stylesheet" type="text/css" href="/assets/css/style.css" />
+    </head>
+    <body>
+        <header class="header mb-5">
+            <nav class="navbar navbar-dark navbar-expand-lg p-4">
+                <a class="navbar-brand mx-4" href="/">
+                    <h1>
+                        <i class="navbar-logo emphasized-text fa-solid fa-screwdriver-wrench"></i
+                        ><span class="navbar-title ms-3">Rust Sandbox</span>
+                    </h1>
+                </a>
+                <div class="ms-auto d-flex gap-2">
+                    <a class="btn btn-outline-light" href="/orders">Orders</a>
+                    <a class="btn btn-outline-light position-relative" href="/cart">
+                        <i class="fa-solid fa-cart-shopping"></i> Cart
+                        {% if cart_count > 0 %}
+                        <span class="badge rounded-pill bg-danger cart-badge">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+                    <details class="user-menu">
+                        <summary class="btn btn-outline-light">
+                            <i class="fa-solid fa-user"></i> {{ user.name }}
+                        </summary>
+                        <ul class="dropdown-menu dropdown-menu-end show">
+                            <li><span class="dropdown-item-text">Signed in as <strong>{{ user.username }}</strong></span></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><a class="dropdown-item" href="/orders">My orders</a></li>
+                            <li><a class="dropdown-item" href="/cart">My cart</a></li>
+                        </ul>
+                    </details>
+                </div>
+            </nav>
+        </header>
+
+        <main class="container" role="main">
+            <div class="description-box px-3 py-5 rounded-3">{% block content %}{% endblock %}</div>
+        </main>
+
+        <footer class="footer mt-5"></footer>
+    </body>
+</html>

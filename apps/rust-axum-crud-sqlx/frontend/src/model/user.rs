@@ -8,6 +8,16 @@ pub struct User {
     pub username: String,
 }
 
+impl User {
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+
+    pub fn username(&self) -> String {
+        self.username.clone()
+    }
+}
+
 impl From<AppUserConfig> for User {
     fn from(config: AppUserConfig) -> Self {
         Self {

@@ -24,6 +24,7 @@ pub async fn select(
         r#"
             SELECT
                 o.id,
+                o.username,
                 o.status,
                 o.timestamp AT TIME ZONE 'UTC' AS timestamp,
                 oi.product_id,
@@ -50,6 +51,7 @@ pub async fn select_by_id(
         r#"
             SELECT
                 o.id,
+                o.username,
                 o.status,
                 o.timestamp AT TIME ZONE 'UTC' AS timestamp,
                 oi.product_id,

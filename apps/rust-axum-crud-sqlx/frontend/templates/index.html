@@ -1,86 +1,83 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <title>Rust Sandbox</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css" />
-        <link rel="stylesheet" type="text/css" href="/webjars/font-awesome/css/all.min.css" />
-        <link rel="stylesheet" type="text/css" href="/assets/css/style.css" />
-    </head>
-    <body>
-        <header class="header mb-5">
-            <nav class="navbar navbar-dark navbar-expand-lg p-4">
-                <a class="navbar-brand mx-4" href="/">
-                    <h1>
-                        <i class="navbar-logo emphasized-text fa-solid fa-screwdriver-wrench"></i
-                        ><span class="navbar-title ms-3">Rust Sandbox</span>
-                    </h1>
-                </a>
-                <a class="btn btn-outline-light ms-auto" href="/orders">Orders</a>
-            </nav>
-        </header>
+{% extends "base.html" %}
 
-        <main class="container" role="main">
-            <div class="description-box px-3 py-5 rounded-3">
-                <div class="row">
-                    <div class="col">
-                        <h2 class="emphasized-text">Welcome to this Rust example!</h2>
-                        <p>This example shows a server rendered frontend and Rust/Axum CRUD SQLx</p>
-                    </div>
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="emphasized-text">Welcome to this Rust example!</h2>
+        <p>This example shows a server rendered frontend and Rust/Axum CRUD SQLx</p>
+    </div>
+</div>
+{% if let Some(alert) = alert %}
+<div class="row mt-4">
+    <div class="col">
+        <div class="alert alert-{{ alert.variant }}" role="alert">{{ alert.message }}</div>
+    </div>
+</div>
+{% endif %}
+<div class="row mt-4">
+    <div class="col">
+        <div class="card cart-summary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="fa-solid fa-cart-shopping"></i> Your cart</h5>
+                    <a class="btn btn-primary btn-sm" href="/cart">View cart</a>
                 </div>
-                <div class="row mt-4">
-                    <div class="col">
-                        {% if let Some(alert) = alert %}
-                        <div class="alert alert-{{ alert.variant }}" role="alert">{{ alert.message }}</div>
-                        {% endif %}
-                    </div>
+                {% if cart.lines.is_empty() %}
+                <p class="text-muted mb-0 mt-3">Your cart is empty.</p>
+                {% else %}
+                <ul class="list-unstyled mt-3 mb-2">
+                    {% for line in cart.lines %}
+                    <li class="d-flex justify-content-between">
+                        <span>{{ line.quantity }} &times; {{ line.name }}</span>
+                        <span>{{ line.line_total }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <hr />
+                <div class="d-flex justify-content-between fw-bold">
+                    <span>Total ({{ cart.item_count }} items)</span>
+                    <span>{{ cart.total }}</span>
                 </div>
-                <div class="row mt-4">
-                    <div class="col">
-                        <form method="post" action="/">
-                            <table class="table table-dark table-striped align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Packing</th>
-                                        <th>Price</th>
-                                        <th>Stock</th>
-                                        <th>Quantity</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for product in products %}
-                                    <tr>
-                                        <td>{{ product.name }}</td>
-                                        <td>{{ product.description }}</td>
-                                        <td>{{ product.packing }}</td>
-                                        <td>{{ product.price }}</td>
-                                        <td>{{ product.stock }}</td>
-                                        <td>
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                max="{{ product.stock }}"
-                                                value="0"
-                                                name="quantity_{{ product.id }}"
-                                                class="form-control form-control-sm"
-                                            />
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            <div class="d-grid d-flex justify-content-end">
-                                <button type="submit" class="btn btn-primary">Create Order</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                {% endif %}
             </div>
-        </main>
-
-        <footer class="footer mt-5"></footer>
-    </body>
-</html>
+        </div>
+    </div>
+</div>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-1">
+    {% for product in products %}
+    <div class="col">
+        <div class="card product-card h-100">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ product.packing }}</h6>
+                <p class="card-text flex-grow-1">{{ product.description }}</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="product-price">{{ product.price }}</span>
+                    {% if product.stock > 0 %}
+                    <span class="badge bg-success">{{ product.stock }} in stock</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Out of stock</span>
+                    {% endif %}
+                </div>
+                <form method="post" action="/cart/add" class="d-flex gap-2">
+                    <input type="hidden" name="product_id" value="{{ product.id }}" />
+                    <input
+                        type="number"
+                        name="quantity"
+                        min="1"
+                        max="{{ product.stock }}"
+                        value="1"
+                        class="form-control"
+                        aria-label="Quantity"
+                        {% if product.stock == 0 %}disabled{% endif %}
+                    />
+                    <button type="submit" class="btn btn-primary text-nowrap" {% if product.stock == 0 %}disabled{% endif %}>
+                        <i class="fa-solid fa-cart-plus"></i> Add
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

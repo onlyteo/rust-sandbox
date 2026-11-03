@@ -27,3 +27,67 @@ code {
     background-color: #ffffff;
     font-size: 1.4rem;
 }
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 0.7rem;
+}
+
+.product-card,
+.cart-summary {
+    background-color: #2a2f32;
+    color: #f1f1f1;
+    border: 1px solid #3a4146;
+}
+
+.product-card {
+    font-size: 1rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.product-card .text-muted,
+.cart-summary .text-muted {
+    color: #aab2b8 !important;
+}
+
+.product-price {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.cart-summary {
+    font-size: 1rem;
+}
+
+.cart-quantity-form input {
+    max-width: 90px;
+}
+
+.user-menu {
+    position: relative;
+}
+
+.user-menu > summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.user-menu > summary::-webkit-details-marker {
+    display: none;
+}
+
+.user-menu .dropdown-menu {
+    top: 100%;
+    right: 0;
+    left: auto;
+    margin-top: 0.25rem;
+    font-size: 1rem;
+}

@@ -1,7 +1,7 @@
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
 use http_body_util::BodyExt;
-use rust_axum_crud_sqlx_backend::model::dto::Product;
+use rust_axum_crud_sqlx_backend::model::Product;
 use rust_axum_crud_sqlx_backend::route;
 use rust_axum_crud_sqlx_backend::service::order::OrderService;
 use rust_axum_crud_sqlx_backend::service::product::ProductService;

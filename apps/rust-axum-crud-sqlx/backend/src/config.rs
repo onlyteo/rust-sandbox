@@ -1,11 +1,7 @@
 use observability::config::ObservabilityConfig;
 use serde::Deserialize;
+use server::config::ServerConfig;
 use yaml_config::{config::load_from_yaml, error::YamlConfigError};
-
-#[derive(Debug, Deserialize)]
-pub struct ServerConfig {
-    pub address: String,
-}
 
 #[derive(Debug, Deserialize)]
 pub struct DatabaseConfig {

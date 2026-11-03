@@ -1,7 +1,7 @@
 [workspace]
 resolver = "3"
 members = [
-    "libs/async_handler",
+    "libs/server",
     "libs/yaml_config",
     "libs/observability",
     "libs/kafka_serde",

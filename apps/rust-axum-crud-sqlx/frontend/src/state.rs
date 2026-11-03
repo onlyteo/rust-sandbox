@@ -7,14 +7,14 @@ use crate::{
 
 #[derive(Clone)]
 pub struct AppState {
-    user: User,
+    user: Arc<User>,
     orders_service: Arc<OrderService>,
     product_service: Arc<ProductService>,
 }
 
 impl AppState {
     pub fn new(
-        user: User,
+        user: Arc<User>,
         orders_service: Arc<OrderService>,
         product_service: Arc<ProductService>,
     ) -> Arc<Self> {
@@ -25,7 +25,7 @@ impl AppState {
         })
     }
 
-    pub fn user(&self) -> User {
+    pub fn user(&self) -> Arc<User> {
         self.user.clone()
     }
 

@@ -11,11 +11,12 @@ name = "rust_axum_crud_sqlx_frontend"
 path = "src/lib.rs"
 
 [dependencies]
-async_handler = { path = "../../../libs/async_handler" }
+server = { path = "../../../libs/server", features = ["axum", "tokio"] }
 yaml_config = { path = "../../../libs/yaml_config" }
 observability = { path = "../../../libs/observability" }
 
-axum = { workspace = true}
+axum = { workspace = true }
+axum-extra = { workspace = true, features = ["cookie"] }
 askama = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tower-http = { workspace = true, features = ["fs", "trace"] }

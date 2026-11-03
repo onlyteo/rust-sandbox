@@ -1,80 +1,53 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <title>Rust Sandbox</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css" />
-        <link rel="stylesheet" type="text/css" href="/webjars/font-awesome/css/all.min.css" />
-        <link rel="stylesheet" type="text/css" href="/assets/css/style.css" />
-    </head>
-    <body>
-        <header class="header mb-5">
-            <nav class="navbar navbar-dark navbar-expand-lg p-4">
-                <a class="navbar-brand mx-4" href="/">
-                    <h1>
-                        <i class="navbar-logo emphasized-text fa-solid fa-screwdriver-wrench"></i
-                        ><span class="navbar-title ms-3">Rust Sandbox</span>
-                    </h1>
-                </a>
-                <a class="btn btn-outline-light ms-auto" href="/orders">Orders</a>
-            </nav>
-        </header>
+{% extends "base.html" %}
 
-        <main class="container" role="main">
-            <div class="description-box px-3 py-5 rounded-3">
-                <div class="row">
-                    <div class="col">
-                        <h2 class="emphasized-text">Order {{ id }}</h2>
-                        <p>Status: {{ status_label }}</p>
-                    </div>
-                </div>
-                <div class="row mt-4">
-                    <div class="col">
-                        {% if let Some(alert) = alert %}
-                        <div class="alert alert-{{ alert.variant }}" role="alert">{{ alert.message }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="row mt-4">
-                    <div class="col">
-                        <table class="table table-dark table-striped align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Quantity</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for line in lines %}
-                                <tr>
-                                    <td>{{ line.product_name }}</td>
-                                    <td>{{ line.quantity }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="row mt-4">
-                    <div class="col-5">
-                        <form method="post" action="/orders/{{ id }}">
-                            <div class="form-group">
-                                <select name="status" class="form-select">
-                                    <option value="OPEN">OPEN</option>
-                                    <option value="COMPLETED">COMPLETED</option>
-                                    <option value="CANCELLED">CANCELLED</option>
-                                </select>
-                            </div>
-                            <div class="d-grid d-flex justify-content-end mt-2">
-                                <button type="submit" class="btn btn-primary">Update Status</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="emphasized-text">Order {{ id }}</h2>
+        <p>Status: {{ status_label }}</p>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col">
+        {% if let Some(alert) = alert %}
+        <div class="alert alert-{{ alert.variant }}" role="alert">{{ alert.message }}</div>
+        {% endif %}
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col">
+        <table class="table table-dark table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for line in lines %}
+                <tr>
+                    <td>{{ line.product_name }}</td>
+                    <td>{{ line.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-5">
+        <form method="post" action="/orders/{{ id }}">
+            <div class="form-group">
+                <select name="status" class="form-select">
+                    <option value="OPEN">OPEN</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                    <option value="CANCELLED">CANCELLED</option>
+                </select>
             </div>
-        </main>
-
-        <footer class="footer mt-5"></footer>
-    </body>
-</html>
+            <div class="d-grid d-flex justify-content-end mt-2">
+                <button type="submit" class="btn btn-primary">Update Status</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

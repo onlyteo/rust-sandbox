@@ -7,5 +7,5 @@ pub struct Greeting {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Person {
-    pub name: String
+    pub name: String,
 }

@@ -1,8 +1,23 @@
-use rust_warp_rest_api_backend::route;
+use std::net::SocketAddr;
+
+use observability::init_observability;
+use rust_warp_rest_api_backend::{
+    config::{load_observability_config, load_server_config},
+    route,
+};
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
+    let server_config = load_server_config()?;
+    let observability_config = load_observability_config()?;
+
+    init_observability(&observability_config)?;
+
     let routes = route::routes();
-    println!("Server started at http://localhost:8081");
-    warp::serve(routes).run(([127, 0, 0, 1], 8081)).await;
+
+    tracing::info!("Starter webserver på adresse {}", server_config.to_string());
+    let address: SocketAddr = server_config.into();
+    warp::serve(routes).run(address).await;
+
+    Ok(())
 }

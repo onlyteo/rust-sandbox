@@ -11,7 +11,7 @@ name = "rust_axum_crud_sqlx_backend"
 path = "src/lib.rs"
 
 [dependencies]
-async_handler = { path = "../../../libs/async_handler" }
+server = { path = "../../../libs/server", features = ["axum", "tokio"] }
 yaml_config = { path = "../../../libs/yaml_config" }
 observability = { path = "../../../libs/observability" }
 

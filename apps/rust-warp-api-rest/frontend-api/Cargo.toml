@@ -3,11 +3,18 @@ name = "rust-warp-rest-api-frontend-api"
 version = "1.0.0"
 edition.workspace = true
 
+[features]
+docker = []
+
 [lib]
 name = "rust_warp_rest_api_frontend_api"
 path = "src/lib.rs"
 
 [dependencies]
+server = { path = "../../../libs/server" }
+yaml_config = { path = "../../../libs/yaml_config" }
+observability = { path = "../../../libs/observability" }
+
 warp = { workspace = true, features = ["server"] }
 tokio = { workspace = true, features = ["full"] }
 serde = { workspace = true, features = ["derive"] }

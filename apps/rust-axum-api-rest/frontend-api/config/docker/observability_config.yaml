@@ -1,0 +1,4 @@
+logging:
+  level: "WARN"
+  directives:
+    - "rust_axum_crud_sqlx_backend=INFO"

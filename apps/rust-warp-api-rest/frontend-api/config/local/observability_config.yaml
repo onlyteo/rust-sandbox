@@ -1,0 +1,4 @@
+logging:
+  level: "INFO"
+  directives:
+    - "rust_axum_crud_sqlx_backend=DEBUG"

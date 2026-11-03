@@ -1,0 +1,16 @@
+[package]
+name = "server"
+version = "1.0.0"
+edition.workspace = true
+
+[features]
+axum = ["dep:axum", "dep:tokio"]
+tokio = ["dep:tokio"]
+
+[dependencies]
+serde = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true, features = ["full"], optional = true }
+axum = { workspace = true, optional = true }
