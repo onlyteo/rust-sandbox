@@ -1,9 +1,11 @@
 use std::sync::Arc;
 
-use reqwest::{Client, StatusCode, header::AUTHORIZATION};
+use reqwest::{Client, StatusCode};
 use uuid::Uuid;
 
-use crate::model::{CreateOrderRequest, Order, OrderProduct, OrderStatus, UpdateOrderRequest};
+use crate::model::{
+    BootstrapPrincipal, CreateOrderRequest, Order, OrderProduct, OrderStatus, UpdateOrderRequest,
+};
 
 pub struct OrderService {
     client: Arc<Client>,
@@ -17,14 +19,14 @@ impl OrderService {
 
     pub async fn get_order_by_id(
         &self,
-        username: String,
+        principal: Arc<BootstrapPrincipal>,
         id: Uuid,
     ) -> anyhow::Result<Option<Order>> {
         let url = format!("{}/api/orders/{id}", self.base_url);
         let response = self
             .client
             .get(&url)
-            .header(AUTHORIZATION, format!("Plaintext {}", username))
+            .basic_auth(principal.username.clone(), Some(principal.password.clone()))
             .send()
             .await?;
         match response.status() {
@@ -33,12 +35,15 @@ impl OrderService {
         }
     }
 
-    pub async fn find_orders(&self, username: String) -> anyhow::Result<Vec<Order>> {
+    pub async fn find_orders(
+        &self,
+        principal: Arc<BootstrapPrincipal>,
+    ) -> anyhow::Result<Vec<Order>> {
         let url = format!("{}/api/orders", self.base_url);
         let response = self
             .client
             .get(&url)
-            .header(AUTHORIZATION, format!("Plaintext {}", username))
+            .basic_auth(principal.username.clone(), Some(principal.password.clone()))
             .send()
             .await?;
         match response.status() {
@@ -49,15 +54,18 @@ impl OrderService {
 
     pub async fn create_order(
         &self,
-        username: String,
+        principal: Arc<BootstrapPrincipal>,
         products: Vec<OrderProduct>,
     ) -> anyhow::Result<Option<Order>> {
         let url = format!("{}/api/orders", self.base_url);
         let response = self
             .client
             .post(&url)
-            .header(AUTHORIZATION, format!("Plaintext {}", username))
-            .json(&CreateOrderRequest::new(username, products))
+            .basic_auth(principal.username.clone(), Some(principal.password.clone()))
+            .json(&CreateOrderRequest::new(
+                principal.username.clone(),
+                products,
+            ))
             .send()
             .await?;
         match response.status() {
@@ -68,7 +76,7 @@ impl OrderService {
 
     pub async fn update_order(
         &self,
-        username: String,
+        principal: Arc<BootstrapPrincipal>,
         id: Uuid,
         status: OrderStatus,
         products: Vec<OrderProduct>,
@@ -77,7 +85,7 @@ impl OrderService {
         let response = self
             .client
             .put(&url)
-            .header(AUTHORIZATION, format!("Plaintext {}", username))
+            .basic_auth(principal.username.clone(), Some(principal.password.clone()))
             .json(&UpdateOrderRequest { status, products })
             .send()
             .await?;

@@ -10,7 +10,7 @@ use axum::routing::get;
 use axum_extra::extract::cookie::CookieJar;
 use uuid::Uuid;
 
-use crate::model::{Alert, Cart, OrderStatus, User};
+use crate::model::{Alert, BootstrapPrincipal, Cart, OrderStatus};
 use crate::state::AppState;
 
 pub fn order_routes() -> Router<Arc<AppState>> {
@@ -24,7 +24,7 @@ pub fn order_routes() -> Router<Arc<AppState>> {
 struct OrdersTemplate {
     orders: Vec<OrderRow>,
     cart_count: i32,
-    user: Arc<User>,
+    principal: Arc<BootstrapPrincipal>,
 }
 
 struct OrderRow {
@@ -41,7 +41,7 @@ struct OrderDetailTemplate {
     lines: Vec<OrderLine>,
     alert: Option<Alert>,
     cart_count: i32,
-    user: Arc<User>,
+    principal: Arc<BootstrapPrincipal>,
 }
 
 struct OrderLine {
@@ -50,10 +50,9 @@ struct OrderLine {
 }
 
 async fn get_orders(State(state): State<Arc<AppState>>, jar: CookieJar) -> Response {
-    let user = state.user();
     let cart_count = Cart::from_jar(&jar).item_count();
 
-    match state.orders_service().find_orders(user.username()).await {
+    match state.orders_service().find_orders(state.principal()).await {
         Ok(orders) => {
             let orders = orders
                 .into_iter()
@@ -67,7 +66,7 @@ async fn get_orders(State(state): State<Arc<AppState>>, jar: CookieJar) -> Respo
                 OrdersTemplate {
                     orders,
                     cart_count,
-                    user: user.clone(),
+                    principal: state.principal(),
                 }
                 .render()
                 .expect("failed to render orders template"),
@@ -95,8 +94,6 @@ async fn post_order_status(
     Path(id): Path<Uuid>,
     Form(params): Form<HashMap<String, String>>,
 ) -> Response {
-    let user = state.user();
-
     let Some(status) = params.get("status").and_then(|value| parse_status(value)) else {
         let alert = Alert::danger("Invalid status.");
         return render_order_detail(state, &jar, id, Some(alert)).await;
@@ -104,7 +101,7 @@ async fn post_order_status(
 
     let order = match state
         .orders_service()
-        .get_order_by_id(user.username(), id)
+        .get_order_by_id(state.principal(), id)
         .await
     {
         Ok(optional_order) => match optional_order {
@@ -122,7 +119,7 @@ async fn post_order_status(
 
     match state
         .orders_service()
-        .update_order(user.username(), id, status, order.products)
+        .update_order(state.principal(), id, status, order.products)
         .await
     {
         Ok(_) => Redirect::to(&format!("/orders/{id}")).into_response(),
@@ -140,11 +137,9 @@ async fn render_order_detail(
     id: Uuid,
     alert: Option<Alert>,
 ) -> Response {
-    let user = state.user();
-
     let order = match state
         .orders_service()
-        .get_order_by_id(user.username(), id)
+        .get_order_by_id(state.principal(), id)
         .await
     {
         Ok(optional_order) => match optional_order {
@@ -161,7 +156,7 @@ async fn render_order_detail(
     };
     let products = state
         .product_service()
-        .find_products(user.username())
+        .find_products(state.principal())
         .await
         .unwrap_or_default();
 
@@ -188,7 +183,7 @@ async fn render_order_detail(
             lines,
             alert,
             cart_count: Cart::from_jar(jar).item_count(),
-            user: user.clone(),
+            principal: state.principal(),
         }
         .render()
         .expect("failed to render order detail template"),

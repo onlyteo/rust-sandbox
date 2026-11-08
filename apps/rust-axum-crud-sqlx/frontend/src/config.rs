@@ -13,6 +13,7 @@ pub struct AppConfig {
 pub struct AppUserConfig {
     pub name: String,
     pub username: String,
+    pub password: String,
 }
 
 #[derive(Deserialize)]

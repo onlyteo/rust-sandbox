@@ -5,7 +5,7 @@ use reqwest::Client;
 use rust_axum_crud_sqlx_frontend::config::{
     load_app_config, load_observability_config, load_server_config,
 };
-use rust_axum_crud_sqlx_frontend::model::User;
+use rust_axum_crud_sqlx_frontend::model::BootstrapPrincipal;
 use rust_axum_crud_sqlx_frontend::route;
 use rust_axum_crud_sqlx_frontend::service::order::OrderService;
 use rust_axum_crud_sqlx_frontend::service::product::ProductService;
@@ -24,12 +24,12 @@ async fn main() -> anyhow::Result<()> {
     let client = Arc::new(Client::new());
     let order_service = OrderService::new(client.clone(), app_config.backend.url.clone());
     let product_service = ProductService::new(client.clone(), app_config.backend.url.clone());
-    let state = AppState::new(
-        Arc::new(User::from(app_config.user)),
+    let app_state = AppState::new(
+        Arc::new(BootstrapPrincipal::from(app_config)),
         order_service,
         product_service,
     );
-    let routes = route::routes(state);
+    let routes = route::routes(app_state);
     let server_task = axum_server(routes, server_config).await;
     let signal_task = shutdown_signal();
 

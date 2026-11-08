@@ -9,7 +9,7 @@ use axum_extra::extract::cookie::CookieJar;
 use serde::Deserialize;
 use uuid::Uuid;
 
-use crate::model::{Alert, Cart, CartSummary, User};
+use crate::model::{Alert, BootstrapPrincipal, Cart, CartSummary};
 use crate::state::AppState;
 
 pub fn cart_routes() -> Router<Arc<AppState>> {
@@ -27,7 +27,7 @@ pub fn cart_routes() -> Router<Arc<AppState>> {
 struct CartTemplate {
     cart: CartSummary,
     cart_count: i32,
-    user: Arc<User>,
+    principal: Arc<BootstrapPrincipal>,
     alert: Option<Alert>,
 }
 
@@ -73,8 +73,6 @@ async fn post_clear(jar: CookieJar) -> Response {
 }
 
 async fn post_checkout(State(state): State<Arc<AppState>>, jar: CookieJar) -> Response {
-    let user = state.user();
-
     let cart = Cart::from_jar(&jar);
     if cart.is_empty() {
         return render_cart(&state, &jar, Some(Alert::danger("Your cart is empty."))).await;
@@ -82,7 +80,7 @@ async fn post_checkout(State(state): State<Arc<AppState>>, jar: CookieJar) -> Re
 
     match state
         .orders_service()
-        .create_order(user.username(), cart.to_order_products())
+        .create_order(state.principal(), cart.to_order_products())
         .await
     {
         Ok(Some(order)) => (
@@ -119,8 +117,11 @@ async fn update_quantity(
     add: bool,
     redirect_to: &str,
 ) -> Response {
-    let user = state.user();
-    let products = match state.product_service().find_products(user.username()).await {
+    let products = match state
+        .product_service()
+        .find_products(state.principal())
+        .await
+    {
         Ok(products) => products,
         Err(error) => {
             tracing::error!("Failed to fetch products: {error}");
@@ -144,15 +145,18 @@ async fn update_quantity(
 }
 
 async fn render_cart(state: &AppState, jar: &CookieJar, alert: Option<Alert>) -> Response {
-    let user = state.user();
     let cart = Cart::from_jar(jar);
     let cart_count = cart.item_count();
 
-    let template = match state.product_service().find_products(user.username()).await {
+    let template = match state
+        .product_service()
+        .find_products(state.principal())
+        .await
+    {
         Ok(products) => CartTemplate {
             cart: CartSummary::build(&products, &cart),
             cart_count,
-            user: state.user().clone(),
+            principal: state.principal(),
             alert,
         },
         Err(error) => {
@@ -160,7 +164,7 @@ async fn render_cart(state: &AppState, jar: &CookieJar, alert: Option<Alert>) ->
             CartTemplate {
                 cart: CartSummary::empty(),
                 cart_count,
-                user,
+                principal: state.principal(),
                 alert: Some(Alert::danger("Failed to load cart.")),
             }
         }

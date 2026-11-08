@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use reqwest::{Client, StatusCode, header::AUTHORIZATION};
+use reqwest::{Client, StatusCode};
 
-use crate::model::Product;
+use crate::model::{BootstrapPrincipal, Product};
 
 pub struct ProductService {
     client: Arc<Client>,
@@ -14,12 +14,15 @@ impl ProductService {
         Arc::new(Self { client, base_url })
     }
 
-    pub async fn find_products(&self, username: String) -> anyhow::Result<Vec<Product>> {
+    pub async fn find_products(
+        &self,
+        principal: Arc<BootstrapPrincipal>,
+    ) -> anyhow::Result<Vec<Product>> {
         let url = format!("{}/api/products", self.base_url);
         let response = self
             .client
             .get(&url)
-            .header(AUTHORIZATION, format!("Plaintext {}", username))
+            .basic_auth(principal.username.clone(), Some(principal.password.clone()))
             .send()
             .await?;
         match response.status() {

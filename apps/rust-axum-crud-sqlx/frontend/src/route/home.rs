@@ -7,7 +7,7 @@ use axum::response::{Html, IntoResponse, Response};
 use axum::routing::get;
 use axum_extra::extract::cookie::CookieJar;
 
-use crate::model::{Alert, Cart, CartSummary, Product, User};
+use crate::model::{Alert, BootstrapPrincipal, Cart, CartSummary, Product};
 use crate::state::AppState;
 
 pub fn home_routes() -> Router<Arc<AppState>> {
@@ -21,17 +21,16 @@ struct IndexTemplate {
     alert: Option<Alert>,
     cart: CartSummary,
     cart_count: i32,
-    user: Arc<User>,
+    principal: Arc<BootstrapPrincipal>,
 }
 
 async fn get_home(State(state): State<Arc<AppState>>, jar: CookieJar) -> Response {
-    let user = state.user();
     let cart = Cart::from_jar(&jar);
     let cart_count = cart.item_count();
 
     let template = match state
         .product_service()
-        .find_products(user.username.clone())
+        .find_products(state.principal())
         .await
     {
         Ok(products) => IndexTemplate {
@@ -39,7 +38,7 @@ async fn get_home(State(state): State<Arc<AppState>>, jar: CookieJar) -> Respons
             products,
             alert: None,
             cart_count,
-            user: user.clone(),
+            principal: state.principal(),
         },
         Err(error) => {
             tracing::error!("Failed to fetch products: {error}");
@@ -48,7 +47,7 @@ async fn get_home(State(state): State<Arc<AppState>>, jar: CookieJar) -> Respons
                 alert: Some(Alert::danger("Failed to load products.")),
                 cart: CartSummary::empty(),
                 cart_count,
-                user: user.clone(),
+                principal: state.principal(),
             }
         }
     };

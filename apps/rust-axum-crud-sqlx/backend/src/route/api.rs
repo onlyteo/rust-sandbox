@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use auth_handling::basic::middleware::basic_auth_layer;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::routing::get;
@@ -14,7 +15,8 @@ pub fn api_routes() -> Router<Arc<AppState>> {
     Router::new()
         .route("/api/products", get(get_products))
         .route("/api/orders", get(get_orders).post(post_order))
-        .route("/api/orders/{id}", get(get_order_by_id).put(put_order))
+        .route("/api/orders/{id}", get(get_order).put(put_order))
+        .route_layer(basic_auth_layer())
 }
 
 async fn get_products(State(state): State<Arc<AppState>>) -> Result<Json<Vec<Product>>, AppError> {
@@ -31,7 +33,7 @@ async fn get_orders(State(state): State<Arc<AppState>>) -> Result<Json<Vec<Order
     }
 }
 
-async fn get_order_by_id(
+async fn get_order(
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<Order>, AppError> {
