@@ -3,7 +3,7 @@ use std::sync::Arc;
 use axum::{
     extract::{Request, State},
     middleware::Next,
-    response::Response,
+    response::{IntoResponse, Response},
 };
 use error_handling::model::ProblemDetails;
 use headers::{Authorization, HeaderMapExt, authorization::Basic};
@@ -24,14 +24,13 @@ pub type BasicAuthMiddlewareLayer = axum::middleware::FromFnLayer<
     (State<Arc<BasicAuthState>>, Request),
 >;
 
-type BasicAuth =
-    fn(State<Arc<BasicAuthState>>, Request, Next) -> BoxedFuture<Result<Response, ProblemDetails>>;
+type BasicAuth = fn(State<Arc<BasicAuthState>>, Request, Next) -> BoxedFuture<Response>;
 
 fn basic_auth_middleware_boxed(
     state: State<Arc<BasicAuthState>>,
     request: Request,
     next: Next,
-) -> BoxedFuture<Result<Response, ProblemDetails>> {
+) -> BoxedFuture<Response> {
     Box::pin(basic_auth_middleware(state, request, next))
 }
 
@@ -39,7 +38,7 @@ async fn basic_auth_middleware(
     State(_state): State<Arc<BasicAuthState>>,
     mut request: Request,
     next: Next,
-) -> Result<Response, ProblemDetails> {
+) -> Response {
     let basic_auth_header = request.headers().typed_get::<Authorization<Basic>>();
     match basic_auth_header {
         Some(basic_auth) => {
@@ -47,14 +46,8 @@ async fn basic_auth_middleware(
             let password = basic_auth.password();
             let principal = BasicAuthPrincipal::new(username, password);
             request.extensions_mut().insert(principal);
-            Ok(next.run(request).await)
+            next.run(request).await
         }
-        None => {
-            let instance = request.uri().path().to_string();
-            Err(ProblemDetails::unauthorized(
-                instance.as_str(),
-                "Authorization header not found",
-            ))
-        }
+        None => ProblemDetails::unauthorized("Authorization header not found").into_response(),
     }
 }

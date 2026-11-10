@@ -69,7 +69,7 @@ pub async fn select_by_id(
     let orders = map_orders(rows);
 
     if orders.len() > 1 {
-        Err(DatabaseError::multiple_order_hits(id.clone()))
+        Err(DatabaseError::multiple_orders_found(id.clone()))
     } else {
         Ok(orders.first().map(|o| o.clone()))
     }

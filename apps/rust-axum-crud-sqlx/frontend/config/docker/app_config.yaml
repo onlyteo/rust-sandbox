@@ -1,6 +1,6 @@
 user:
   name: Luke Skywalker
   username: skywalker
-  password: skywalker
+  password: T4t01ne
 backend:
   url: http://backend:8080

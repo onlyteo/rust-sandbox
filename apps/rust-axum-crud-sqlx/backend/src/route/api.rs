@@ -20,29 +20,20 @@ pub fn api_routes() -> Router<Arc<AppState>> {
 }
 
 async fn get_products(State(state): State<Arc<AppState>>) -> Result<Json<Vec<Product>>, AppError> {
-    match state.product_service().find_products().await {
-        Ok(products) => Ok(Json(products)),
-        Err(e) => Err(AppError::from(e)),
-    }
+    Ok(Json(state.product_service().find_products().await?))
 }
 
 async fn get_orders(State(state): State<Arc<AppState>>) -> Result<Json<Vec<Order>>, AppError> {
-    match state.orders_service().find_orders().await {
-        Ok(orders) => Ok(Json(orders)),
-        Err(e) => Err(AppError::from(e)),
-    }
+    Ok(Json(state.orders_service().find_orders().await?))
 }
 
 async fn get_order(
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<Order>, AppError> {
-    match state.orders_service().get_order_by_id(id).await {
-        Ok(optional_order) => match optional_order {
-            Some(order) => Ok(Json(order)),
-            None => Err(AppError::order_not_found(id)),
-        },
-        Err(e) => Err(AppError::from(e)),
+    match state.orders_service().get_order_by_id(id).await? {
+        Some(order) => Ok(Json(order)),
+        None => Err(AppError::order_not_found(id)),
     }
 }
 
