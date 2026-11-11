@@ -18,3 +18,19 @@ A CRUD example for an Ordering system (Products + Orders), backed by Postgres vi
    cargo run --manifest-path=./apps/rust-axum-crud-sqlx/frontend/Cargo.toml
    ```
 5. Browse `http://localhost:8080` — pick product quantities to create an order, then view/update it under "Orders".
+
+## Test locally
+
+### Backend
+
+#### GET products
+`curl -u skywalker:T4t01ne -X GET http://localhost:8081/api/products`
+
+#### GET orders
+`curl -u skywalker:T4t01ne -X GET http://localhost:8081/api/orders`
+
+### POST orders
+`curl -u skywalker:T4t01ne -H "Content-Type: application/json" -X POST -d '{"products":[{"id":"d2ac5e0c-83b0-4934-a975-a2134fc1e767","quantity":3}]}' http://localhost:8081/api/orders`
+
+### PUT orders/{id}
+`curl -u skywalker:T4t01ne -H "Content-Type: application/json" -X PUT -d '{"status":"OPEN","products":[{"id":"d2ac5e0c-83b0-4934-a975-a2134fc1e767","quantity":3}]}' http://localhost:8081/api/orders/14df3867-17cb-4c7f-b705-f6d96f3f49c3`

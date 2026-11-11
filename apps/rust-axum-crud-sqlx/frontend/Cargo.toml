@@ -30,3 +30,4 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 chrono = { workspace = true }
 dotenv = { workspace = true }
+strum = { workspace = true }

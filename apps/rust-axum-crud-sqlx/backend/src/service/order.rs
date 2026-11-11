@@ -18,26 +18,38 @@ impl OrderService {
         Arc::new(Self { pool })
     }
 
-    pub async fn get_order_by_id(&self, id: Uuid) -> anyhow::Result<Option<Order>, DatabaseError> {
+    pub async fn get_order_by_id(
+        &self,
+        id: &Uuid,
+        username: &String,
+    ) -> anyhow::Result<Option<Order>, DatabaseError> {
         let mut tx = self
             .pool
             .begin()
             .await
             .map_err(DatabaseError::transaction_failed)?;
-        let optional_order = repository::order::select_by_id(&mut tx, &id).await?;
+        let optional_order = repository::order::select_by_id(&mut tx, id, username).await?;
         tx.commit()
             .await
             .map_err(DatabaseError::transaction_failed)?;
         Ok(optional_order)
     }
 
-    pub async fn find_orders(&self) -> anyhow::Result<Vec<Order>, DatabaseError> {
+    pub async fn find_orders(
+        &self,
+        username: &String,
+    ) -> anyhow::Result<Vec<Order>, DatabaseError> {
         let mut tx = self
             .pool
             .begin()
             .await
             .map_err(DatabaseError::transaction_failed)?;
-        let orders = repository::order::select(&mut tx).await?;
+        let statuses = vec![
+            OrderStatus::Open,
+            OrderStatus::Completed,
+            OrderStatus::Cancelled,
+        ];
+        let orders = repository::order::select_by_statuses(&mut tx, &username, &statuses).await?;
         tx.commit()
             .await
             .map_err(DatabaseError::transaction_failed)?;
@@ -46,34 +58,44 @@ impl OrderService {
 
     pub async fn create_order(
         &self,
-        request: CreateOrderRequest,
+        username: &String,
+        request: &CreateOrderRequest,
     ) -> anyhow::Result<Option<Order>, DatabaseError> {
         let mut tx = self
             .pool
             .begin()
             .await
             .map_err(DatabaseError::transaction_failed)?;
-        let id = repository::order::insert(&mut tx, &request.username).await?;
-        repository::order::update(&mut tx, &id, &OrderStatus::Open, &request.products).await?;
-        let optional_order = repository::order::select_by_id(&mut tx, &id).await?;
-        tx.commit()
-            .await
-            .map_err(DatabaseError::transaction_failed)?;
-        Ok(optional_order)
+        let statuses = vec![OrderStatus::Open];
+        let orders = repository::order::select_by_statuses(&mut tx, &username, &statuses).await?;
+        if orders.is_empty() {
+            let id = repository::order::insert(&mut tx, &username).await?;
+            repository::order_item::insert(&mut tx, &id, &request.products).await?;
+            let optional_order = repository::order::select_by_id(&mut tx, &id, &username).await?;
+            tx.commit()
+                .await
+                .map_err(DatabaseError::transaction_failed)?;
+            Ok(optional_order)
+        } else {
+            Err(DatabaseError::order_already_exists(OrderStatus::Open))
+        }
     }
 
     pub async fn update_order(
         &self,
-        id: Uuid,
-        request: UpdateOrderRequest,
+        id: &Uuid,
+        username: &String,
+        request: &UpdateOrderRequest,
     ) -> anyhow::Result<Option<Order>, DatabaseError> {
         let mut tx = self
             .pool
             .begin()
             .await
             .map_err(DatabaseError::transaction_failed)?;
-        repository::order::update(&mut tx, &id, &request.status, &request.products).await?;
-        let optional_order = repository::order::select_by_id(&mut tx, &id).await?;
+        repository::order_item::delete(&mut tx, &id, &username, &request.products).await?;
+        repository::order_item::insert(&mut tx, &id, &request.products).await?;
+        repository::order::update(&mut tx, &id, &username, &request.status).await?;
+        let optional_order = repository::order::select_by_id(&mut tx, &id, &username).await?;
         tx.commit()
             .await
             .map_err(DatabaseError::transaction_failed)?;

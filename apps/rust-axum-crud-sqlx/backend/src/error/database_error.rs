@@ -1,5 +1,7 @@
 use uuid::Uuid;
 
+use crate::model::OrderStatus;
+
 #[derive(Debug, thiserror::Error)]
 pub enum DatabaseError {
     #[error("Multiple orders found for id {id}")]
@@ -16,6 +18,8 @@ pub enum DatabaseError {
     DeleteOrderItemsFailed { cause: sqlx::Error },
     #[error("Transaction failed: {cause}")]
     TransactionFailed { cause: sqlx::Error },
+    #[error("Order already exists with status: {status}")]
+    OrderAlreadyExists { status: OrderStatus },
 }
 
 impl DatabaseError {
@@ -45,5 +49,9 @@ impl DatabaseError {
 
     pub fn transaction_failed(cause: sqlx::Error) -> DatabaseError {
         DatabaseError::TransactionFailed { cause }
+    }
+
+    pub fn order_already_exists(status: OrderStatus) -> DatabaseError {
+        DatabaseError::OrderAlreadyExists { status }
     }
 }

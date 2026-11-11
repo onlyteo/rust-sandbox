@@ -1,5 +1,8 @@
+use crate::model::{EnumTypeParseError, enum_type_not_found};
 use chrono::{DateTime, Utc};
 use serde_derive::{Deserialize, Serialize};
+use std::fmt::Display;
+use strum::{AsRefStr, EnumString};
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -37,7 +40,6 @@ impl OrderProduct {
 
 #[derive(Deserialize)]
 pub struct CreateOrderRequest {
-    pub username: String,
     pub products: Vec<OrderProduct>,
 }
 
@@ -47,11 +49,24 @@ pub struct UpdateOrderRequest {
     pub products: Vec<OrderProduct>,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize, sqlx::Type)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, EnumString, AsRefStr, sqlx::Type,
+)]
+#[strum(
+    serialize_all = "SCREAMING_SNAKE_CASE",
+    parse_err_fn = enum_type_not_found,
+    parse_err_ty = EnumTypeParseError
+)]
 #[sqlx(type_name = "VARCHAR", rename_all = "SCREAMING_SNAKE_CASE")]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum OrderStatus {
     Open,
     Completed,
     Cancelled,
+}
+
+impl Display for OrderStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_ref().to_string())
+    }
 }

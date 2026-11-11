@@ -47,3 +47,4 @@ thiserror = "2.0"
 anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 base64 = "0.23"
+strum = { version = "0.28", features = ["derive"] }

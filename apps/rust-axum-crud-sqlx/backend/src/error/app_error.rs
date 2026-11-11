@@ -38,9 +38,15 @@ impl AppError {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 &self.to_string(),
             ),
-            AppError::Database(_) => {
-                ProblemDetails::internal_server_error("An internal error occurred")
-            }
+            AppError::Database(cause) => match cause {
+                DatabaseError::OrderAlreadyExists { .. } => ProblemDetails::new(
+                    "urn:app:order-already-exists",
+                    "Order Already Exists",
+                    StatusCode::CONFLICT,
+                    &self.to_string(),
+                ),
+                _ => ProblemDetails::internal_server_error("An internal error occurred"),
+            },
         }
     }
 }
