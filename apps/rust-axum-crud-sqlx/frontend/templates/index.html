@@ -52,25 +52,33 @@
                 <h6 class="card-subtitle mb-2 text-muted">{{ product.packing }}</h6>
                 <p class="card-text flex-grow-1">{{ product.description }}</p>
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="product-price">{{ product.price }}</span>
+                    <span class="product-price">€{{ product.price }}</span>
                     {% if product.stock > 0 %}
                     <span class="badge bg-success">{{ product.stock }} in stock</span>
                     {% else %}
                     <span class="badge bg-secondary">Out of stock</span>
                     {% endif %}
                 </div>
-                <form method="post" action="/cart/add" class="d-flex gap-2">
+                <form method="post" action="/cart/add" class="d-flex align-items-center justify-content-between gap-2">
                     <input type="hidden" name="product_id" value="{{ product.id }}" />
-                    <input
-                        type="number"
-                        name="quantity"
-                        min="1"
-                        max="{{ product.stock }}"
-                        value="1"
-                        class="form-control"
-                        aria-label="Quantity"
-                        {% if product.stock == 0 %}disabled{% endif %}
-                    />
+                    <div class="quantity-pill" {% if product.stock == 0 %}aria-disabled="true"{% endif %}>
+                        <button type="button" class="quantity-btn" data-step="down" aria-label="Decrease quantity" {% if product.stock == 0 %}disabled{% endif %}>
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                        <input
+                            type="number"
+                            name="quantity"
+                            min="1"
+                            max="{{ product.stock }}"
+                            value="1"
+                            class="quantity-input"
+                            aria-label="Quantity"
+                            {% if product.stock == 0 %}disabled{% endif %}
+                        />
+                        <button type="button" class="quantity-btn" data-step="up" aria-label="Increase quantity" {% if product.stock == 0 %}disabled{% endif %}>
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
                     <button type="submit" class="btn btn-primary text-nowrap" {% if product.stock == 0 %}disabled{% endif %}>
                         <i class="fa-solid fa-cart-plus"></i> Add
                     </button>
@@ -80,4 +88,5 @@
     </div>
     {% endfor %}
 </div>
+<script src="/assets/js/quantity.js"></script>
 {% endblock %}

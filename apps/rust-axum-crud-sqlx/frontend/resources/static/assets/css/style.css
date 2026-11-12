@@ -91,3 +91,59 @@ code {
     margin-top: 0.25rem;
     font-size: 1rem;
 }
+
+.quantity-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 50rem;
+    padding: 0.25rem;
+}
+
+.quantity-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--bs-primary, #0d6efd);
+    color: #fff;
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+.quantity-btn:hover:not(:disabled) {
+    filter: brightness(1.15);
+}
+
+.quantity-btn:disabled {
+    opacity: 0.4;
+}
+
+.quantity-input {
+    width: 2.25rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: center;
+    font-weight: 600;
+    -moz-appearance: textfield;
+}
+
+.quantity-input:focus {
+    outline: none;
+}
+
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.quantity-update[hidden] {
+    display: none !important;
+}

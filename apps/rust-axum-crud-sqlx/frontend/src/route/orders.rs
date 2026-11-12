@@ -1,22 +1,20 @@
-use std::collections::HashMap;
 use std::sync::Arc;
 
 use askama::Template;
 use axum::Router;
-use axum::extract::{Form, Path, State};
+use axum::extract::{Path, State};
 use axum::http::StatusCode;
-use axum::response::{Html, IntoResponse, Redirect, Response};
+use axum::response::{Html, IntoResponse, Response};
 use axum::routing::get;
-use axum_extra::extract::cookie::CookieJar;
 use uuid::Uuid;
 
-use crate::model::{Alert, BootstrapPrincipal, Cart, OrderStatus};
+use crate::model::{Alert, BootstrapPrincipal, Cart, Order, OrderStatus, format_euro};
 use crate::state::AppState;
 
 pub fn order_routes() -> Router<Arc<AppState>> {
     Router::new()
         .route("/orders", get(get_orders))
-        .route("/orders/{id}", get(get_order).post(post_order_status))
+        .route("/orders/{id}", get(get_order))
 }
 
 #[derive(Template)]
@@ -46,16 +44,20 @@ struct OrderDetailTemplate {
 
 struct OrderLine {
     product_name: String,
+    packing: String,
+    description: String,
+    price: String,
+    line_total: String,
     quantity: i32,
 }
 
-async fn get_orders(State(state): State<Arc<AppState>>, jar: CookieJar) -> Response {
-    let cart_count = Cart::from_jar(&jar).item_count();
-
+async fn get_orders(State(state): State<Arc<AppState>>) -> Response {
     match state.orders_service().find_orders(state.principal()).await {
         Ok(orders) => {
+            let cart_count = cart_count(&orders);
             let orders = orders
                 .into_iter()
+                .filter(|order| order.status != OrderStatus::Open)
                 .map(|order| OrderRow {
                     id: order.id,
                     status_label: status_label(order.status),
@@ -80,25 +82,11 @@ async fn get_orders(State(state): State<Arc<AppState>>, jar: CookieJar) -> Respo
     }
 }
 
-async fn get_order(
-    State(state): State<Arc<AppState>>,
-    jar: CookieJar,
-    Path(id): Path<Uuid>,
-) -> Response {
-    render_order_detail(state, &jar, id, None).await
+async fn get_order(State(state): State<Arc<AppState>>, Path(id): Path<Uuid>) -> Response {
+    render_order_detail(state, id, None).await
 }
 
-async fn post_order_status(
-    State(state): State<Arc<AppState>>,
-    jar: CookieJar,
-    Path(id): Path<Uuid>,
-    Form(params): Form<HashMap<String, String>>,
-) -> Response {
-    let Some(status) = params.get("status").and_then(|value| parse_status(value)) else {
-        let alert = Alert::danger("Invalid status.");
-        return render_order_detail(state, &jar, id, Some(alert)).await;
-    };
-
+async fn render_order_detail(state: Arc<AppState>, id: Uuid, alert: Option<Alert>) -> Response {
     let order = match state
         .orders_service()
         .get_order_by_id(state.principal(), id)
@@ -116,44 +104,15 @@ async fn post_order_status(
             return (StatusCode::NOT_FOUND, "Order not found").into_response();
         }
     };
-
-    match state
-        .orders_service()
-        .update_order(state.principal(), id, status, order.products)
-        .await
-    {
-        Ok(_) => Redirect::to(&format!("/orders/{id}")).into_response(),
-        Err(error) => {
-            tracing::error!("Failed to update order {id}: {error}");
-            let alert = Alert::danger("Something went wrong, please try again.");
-            render_order_detail(state, &jar, id, Some(alert)).await
-        }
+    if order.status == OrderStatus::Open {
+        return (StatusCode::NOT_FOUND, "Order not found").into_response();
     }
-}
-
-async fn render_order_detail(
-    state: Arc<AppState>,
-    jar: &CookieJar,
-    id: Uuid,
-    alert: Option<Alert>,
-) -> Response {
-    let order = match state
+    let cart_count = state
         .orders_service()
-        .get_order_by_id(state.principal(), id)
+        .find_open_order(state.principal())
         .await
-    {
-        Ok(optional_order) => match optional_order {
-            Some(order) => order,
-            None => {
-                tracing::error!("Failed to fetch order {id}");
-                return (StatusCode::NOT_FOUND, "Order not found").into_response();
-            }
-        },
-        Err(error) => {
-            tracing::error!("Failed to fetch order {id}: {error}");
-            return (StatusCode::NOT_FOUND, "Order not found").into_response();
-        }
-    };
+        .map(|open| Cart::from_order(open.as_ref()).item_count())
+        .unwrap_or_default();
     let products = state
         .product_service()
         .find_products(state.principal())
@@ -163,17 +122,26 @@ async fn render_order_detail(
     let lines = order
         .products
         .iter()
-        .map(|line| {
-            let product_name = products
-                .iter()
-                .find(|product| product.id == line.id)
-                .map(|product| product.name.clone())
-                .unwrap_or_else(|| line.id.to_string());
-            OrderLine {
-                product_name,
-                quantity: line.quantity,
-            }
-        })
+        .map(
+            |line| match products.iter().find(|product| product.id == line.id) {
+                Some(product) => OrderLine {
+                    product_name: product.name.clone(),
+                    packing: product.packing.clone(),
+                    description: product.description.clone(),
+                    price: format_euro(i64::from(product.price)),
+                    line_total: format_euro(i64::from(product.price) * i64::from(line.quantity)),
+                    quantity: line.quantity,
+                },
+                None => OrderLine {
+                    product_name: line.id.to_string(),
+                    packing: String::new(),
+                    description: String::new(),
+                    price: String::new(),
+                    line_total: String::new(),
+                    quantity: line.quantity,
+                },
+            },
+        )
         .collect();
 
     Html(
@@ -182,7 +150,7 @@ async fn render_order_detail(
             status_label: status_label(order.status),
             lines,
             alert,
-            cart_count: Cart::from_jar(jar).item_count(),
+            cart_count,
             principal: state.principal(),
         }
         .render()
@@ -191,19 +159,17 @@ async fn render_order_detail(
     .into_response()
 }
 
+fn cart_count(orders: &[Order]) -> i32 {
+    let open = orders
+        .iter()
+        .find(|order| order.status == OrderStatus::Open);
+    Cart::from_order(open).item_count()
+}
+
 fn status_label(status: OrderStatus) -> &'static str {
     match status {
         OrderStatus::Open => "OPEN",
         OrderStatus::Completed => "COMPLETED",
         OrderStatus::Cancelled => "CANCELLED",
-    }
-}
-
-fn parse_status(value: &str) -> Option<OrderStatus> {
-    match value {
-        "OPEN" => Some(OrderStatus::Open),
-        "COMPLETED" => Some(OrderStatus::Completed),
-        "CANCELLED" => Some(OrderStatus::Cancelled),
-        _ => None,
     }
 }

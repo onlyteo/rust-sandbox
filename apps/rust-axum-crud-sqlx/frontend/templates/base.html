@@ -19,7 +19,6 @@
                     </h1>
                 </a>
                 <div class="ms-auto d-flex gap-2">
-                    <a class="btn btn-outline-light" href="/orders">Orders</a>
                     <a class="btn btn-outline-light position-relative" href="/cart">
                         <i class="fa-solid fa-cart-shopping"></i> Cart
                         {% if cart_count > 0 %}
@@ -34,7 +33,6 @@
                             <li><span class="dropdown-item-text">Signed in as <strong>{{ principal.username }}</strong></span></li>
                             <li><hr class="dropdown-divider" /></li>
                             <li><a class="dropdown-item" href="/orders">My orders</a></li>
-                            <li><a class="dropdown-item" href="/cart">My cart</a></li>
                         </ul>
                     </details>
                 </div>

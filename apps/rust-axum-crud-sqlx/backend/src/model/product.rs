@@ -7,6 +7,6 @@ pub struct Product {
     pub name: String,
     pub description: String,
     pub packing: String,
-    pub price: String,
+    pub price: i32,
     pub stock: i32,
 }

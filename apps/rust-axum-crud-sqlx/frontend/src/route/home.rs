@@ -5,7 +5,6 @@ use axum::Router;
 use axum::extract::State;
 use axum::response::{Html, IntoResponse, Response};
 use axum::routing::get;
-use axum_extra::extract::cookie::CookieJar;
 
 use crate::model::{Alert, BootstrapPrincipal, Cart, CartSummary, Product};
 use crate::state::AppState;
@@ -24,8 +23,18 @@ struct IndexTemplate {
     principal: Arc<BootstrapPrincipal>,
 }
 
-async fn get_home(State(state): State<Arc<AppState>>, jar: CookieJar) -> Response {
-    let cart = Cart::from_jar(&jar);
+async fn get_home(State(state): State<Arc<AppState>>) -> Response {
+    let (cart, cart_alert) = match state
+        .orders_service()
+        .find_open_order(state.principal())
+        .await
+    {
+        Ok(order) => (Cart::from_order(order.as_ref()), None),
+        Err(error) => {
+            tracing::error!("Failed to fetch open order: {error}");
+            (Cart::default(), Some(Alert::danger("Failed to load cart.")))
+        }
+    };
     let cart_count = cart.item_count();
 
     let template = match state
@@ -36,7 +45,7 @@ async fn get_home(State(state): State<Arc<AppState>>, jar: CookieJar) -> Respons
         Ok(products) => IndexTemplate {
             cart: CartSummary::build(&products, &cart),
             products,
-            alert: None,
+            alert: cart_alert,
             cart_count,
             principal: state.principal(),
         },

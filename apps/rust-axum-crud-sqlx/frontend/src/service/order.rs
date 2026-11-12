@@ -4,7 +4,8 @@ use reqwest::{Client, StatusCode};
 use uuid::Uuid;
 
 use crate::model::{
-    BootstrapPrincipal, CreateOrderRequest, Order, OrderProduct, OrderStatus, UpdateOrderRequest,
+    BootstrapPrincipal, Cart, CreateOrderRequest, Order, OrderProduct, OrderStatus,
+    UpdateOrderRequest,
 };
 
 pub struct OrderService {
@@ -62,10 +63,7 @@ impl OrderService {
             .client
             .post(&url)
             .basic_auth(principal.username.clone(), Some(principal.password.clone()))
-            .json(&CreateOrderRequest::new(
-                principal.username.clone(),
-                products,
-            ))
+            .json(&CreateOrderRequest::new(products))
             .send()
             .await?;
         match response.status() {
@@ -93,5 +91,42 @@ impl OrderService {
             StatusCode::OK => Ok(response.json().await?),
             status => Err(anyhow::anyhow!("Unexpected status code: {status}")),
         }
+    }
+
+    /// Returns the user's open order, if any.
+    pub async fn find_open_order(
+        &self,
+        principal: Arc<BootstrapPrincipal>,
+    ) -> anyhow::Result<Option<Order>> {
+        let orders = self.find_orders(principal).await?;
+        Ok(orders
+            .into_iter()
+            .find(|order| order.status == OrderStatus::Open))
+    }
+
+    /// Persists the cart to the open order, creating the order if needed.
+    pub async fn save_cart(
+        &self,
+        principal: Arc<BootstrapPrincipal>,
+        open_order: Option<&Order>,
+        cart: &Cart,
+    ) -> anyhow::Result<()> {
+        match open_order {
+            Some(order) => {
+                self.update_order(
+                    principal,
+                    order.id,
+                    OrderStatus::Open,
+                    cart.to_order_products(),
+                )
+                .await?;
+            }
+            None if !cart.is_empty() => {
+                self.create_order(principal, cart.to_order_products())
+                    .await?;
+            }
+            None => {}
+        }
+        Ok(())
     }
 }

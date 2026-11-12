@@ -4,7 +4,7 @@ CREATE TABLE products
     name        VARCHAR(255) NOT NULL,
     description TEXT         NOT NULL,
     packing     VARCHAR(20)  NOT NULL,
-    price       VARCHAR(20)  NOT NULL,
+    price       INTEGER      NOT NULL CHECK (price > -1),
     stock       INTEGER      NOT NULL CHECK (stock > -1)
 );
 

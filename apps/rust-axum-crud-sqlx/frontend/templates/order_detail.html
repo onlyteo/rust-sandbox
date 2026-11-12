@@ -3,8 +3,13 @@
 {% block content %}
 <div class="row">
     <div class="col">
-        <h2 class="emphasized-text">Order {{ id }}</h2>
-        <p>Status: {{ status_label }}</p>
+        <h2 class="emphasized-text">Order</h2>
+        <h4 class="text-muted text-break">{{ id }}</h4>
+        {% if status_label == "COMPLETED" %}
+        <span class="badge bg-success">{{ status_label }}</span>
+        {% else %}
+        <span class="badge bg-secondary">{{ status_label }}</span>
+        {% endif %}
     </div>
 </div>
 <div class="row mt-4">
@@ -14,40 +19,32 @@
         {% endif %}
     </div>
 </div>
-<div class="row mt-4">
+<div class="row row-cols-1 g-4 mt-1">
+    {% for line in lines %}
     <div class="col">
-        <table class="table table-dark table-striped align-middle">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for line in lines %}
-                <tr>
-                    <td>{{ line.product_name }}</td>
-                    <td>{{ line.quantity }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-<div class="row mt-4">
-    <div class="col-5">
-        <form method="post" action="/orders/{{ id }}">
-            <div class="form-group">
-                <select name="status" class="form-select">
-                    <option value="OPEN">OPEN</option>
-                    <option value="COMPLETED">COMPLETED</option>
-                    <option value="CANCELLED">CANCELLED</option>
-                </select>
+        <div class="card product-card">
+            <div class="card-body">
+                <h5 class="card-title">{{ line.product_name }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ line.packing }}</h6>
+                <p class="card-text">{{ line.description }}</p>
+                <hr />
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="text-muted small text-uppercase">Quantity</div>
+                        <div class="fw-bold">{{ line.quantity }}</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted small text-uppercase">Item price</div>
+                        <div class="fw-bold">{{ line.price }}</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted small text-uppercase">Total price</div>
+                        <div class="fw-bold">{{ line.line_total }}</div>
+                    </div>
+                </div>
             </div>
-            <div class="d-grid d-flex justify-content-end mt-2">
-                <button type="submit" class="btn btn-primary">Update Status</button>
-            </div>
-        </form>
+        </div>
     </div>
+    {% endfor %}
 </div>
 {% endblock %}

@@ -1,5 +1,7 @@
+use crate::model::{EnumTypeParseError, enum_type_not_found};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use strum::{AsRefStr, EnumString};
 use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
@@ -19,13 +21,12 @@ pub struct OrderProduct {
 
 #[derive(Serialize, Deserialize)]
 pub struct CreateOrderRequest {
-    pub username: String,
     pub products: Vec<OrderProduct>,
 }
 
 impl CreateOrderRequest {
-    pub fn new(username: String, products: Vec<OrderProduct>) -> Self {
-        Self { username, products }
+    pub fn new(products: Vec<OrderProduct>) -> Self {
+        Self { products }
     }
 }
 
@@ -35,7 +36,12 @@ pub struct UpdateOrderRequest {
     pub products: Vec<OrderProduct>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, EnumString, AsRefStr)]
+#[strum(
+    serialize_all = "SCREAMING_SNAKE_CASE",
+    parse_err_fn = enum_type_not_found,
+    parse_err_ty = EnumTypeParseError
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum OrderStatus {
     Open,

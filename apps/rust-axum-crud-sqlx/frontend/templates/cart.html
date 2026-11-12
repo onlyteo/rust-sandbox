@@ -21,61 +21,75 @@
     </div>
 </div>
 {% else %}
-<div class="row mt-4">
+<div class="row row-cols-1 g-4 mt-1">
+    {% for line in cart.lines %}
     <div class="col">
-        <table class="table table-dark table-striped align-middle">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Packing</th>
-                    <th class="text-end">Unit price</th>
-                    <th>Quantity</th>
-                    <th class="text-end">Total</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for line in cart.lines %}
-                <tr>
-                    <td>{{ line.name }}</td>
-                    <td>{{ line.packing }}</td>
-                    <td class="text-end">{{ line.unit_price }}</td>
-                    <td>
-                        <form method="post" action="/cart/update" class="d-flex gap-2 cart-quantity-form">
-                            <input type="hidden" name="product_id" value="{{ line.id }}" />
-                            <input
-                                type="number"
-                                name="quantity"
-                                min="0"
-                                max="{{ line.stock }}"
-                                value="{{ line.quantity }}"
-                                class="form-control form-control-sm"
-                                aria-label="Quantity"
-                            />
-                            <button type="submit" class="btn btn-sm btn-outline-light">Update</button>
-                        </form>
-                    </td>
-                    <td class="text-end">{{ line.line_total }}</td>
-                    <td class="text-end">
+        <div class="card product-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="card-title">{{ line.name }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ line.packing }}</h6>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" form="update-{{ line.id }}" class="btn btn-sm btn-primary quantity-update" hidden>
+                            <i class="fa-solid fa-floppy-disk"></i> Update
+                        </button>
                         <form method="post" action="/cart/remove">
                             <input type="hidden" name="product_id" value="{{ line.id }}" />
                             <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            <tfoot>
-                <tr class="fw-bold">
-                    <td colspan="3">Total</td>
-                    <td>{{ cart.item_count }} items</td>
-                    <td class="text-end">{{ cart.total }}</td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
+                    </div>
+                </div>
+                <hr />
+                <div class="row text-center align-items-center">
+                    <div class="col-4">
+                        <div class="text-muted small text-uppercase">Quantity</div>
+                        <form method="post" action="/cart/update" id="update-{{ line.id }}">
+                            <input type="hidden" name="product_id" value="{{ line.id }}" />
+                            <div class="quantity-pill">
+                                <button type="button" class="quantity-btn" data-step="down" aria-label="Decrease quantity">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                                <input
+                                    type="number"
+                                    name="quantity"
+                                    min="0"
+                                    max="{{ line.stock }}"
+                                    value="{{ line.quantity }}"
+                                    class="quantity-input"
+                                    aria-label="Quantity"
+                                />
+                                <button type="button" class="quantity-btn" data-step="up" aria-label="Increase quantity">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted small text-uppercase">Item price</div>
+                        <div class="fw-bold">{{ line.unit_price }}</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted small text-uppercase">Total price</div>
+                        <div class="fw-bold">{{ line.line_total }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<div class="row mt-4">
+    <div class="col">
+        <div class="card cart-summary">
+            <div class="card-body d-flex justify-content-between fw-bold">
+                <span>Total ({{ cart.item_count }} items)</span>
+                <span>{{ cart.total }}</span>
+            </div>
+        </div>
     </div>
 </div>
 <div class="row mt-4">
@@ -92,4 +106,5 @@
     </div>
 </div>
 {% endif %}
+<script src="/assets/js/quantity.js"></script>
 {% endblock %}

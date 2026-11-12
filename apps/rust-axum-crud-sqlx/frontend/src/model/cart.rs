@@ -1,50 +1,22 @@
 use std::collections::BTreeMap;
 
-use axum_extra::extract::cookie::{Cookie, CookieJar, SameSite};
 use uuid::Uuid;
 
-use crate::model::{OrderProduct, Product};
+use crate::model::{Order, OrderProduct, Product};
 
-pub const CART_COOKIE: &str = "cart";
-
-/// Shopping cart (product id -> quantity), persisted in a cookie as `id:qty|id:qty`.
+/// Shopping cart (product id -> quantity), backed by the user's open order.
 #[derive(Default, Clone, Debug, PartialEq)]
 pub struct Cart(BTreeMap<Uuid, i32>);
 
 impl Cart {
-    pub fn from_jar(jar: &CookieJar) -> Self {
-        jar.get(CART_COOKIE)
-            .map(|cookie| Self::parse(cookie.value()))
-            .unwrap_or_default()
-    }
-
-    pub fn parse(value: &str) -> Self {
-        let items = value
-            .split('|')
-            .filter_map(|entry| {
-                let (id, quantity) = entry.split_once(':')?;
-                let id = Uuid::parse_str(id).ok()?;
-                let quantity: i32 = quantity.parse().ok()?;
-                (quantity > 0).then_some((id, quantity))
-            })
+    pub fn from_order(order: Option<&Order>) -> Self {
+        let items = order
+            .into_iter()
+            .flat_map(|order| order.products.iter())
+            .filter(|product| product.quantity > 0)
+            .map(|product| (product.id, product.quantity))
             .collect();
         Self(items)
-    }
-
-    pub fn encode(&self) -> String {
-        self.0
-            .iter()
-            .map(|(id, quantity)| format!("{id}:{quantity}"))
-            .collect::<Vec<_>>()
-            .join("|")
-    }
-
-    pub fn to_cookie(&self) -> Cookie<'static> {
-        Cookie::build((CART_COOKIE, self.encode()))
-            .path("/")
-            .http_only(true)
-            .same_site(SameSite::Lax)
-            .build()
     }
 
     /// Adds to the existing quantity, capped at `stock`.
@@ -107,102 +79,65 @@ impl CartSummary {
         Self {
             lines: Vec::new(),
             item_count: 0,
-            total: format_money("€", 0),
+            total: format_euro(0),
         }
     }
 
     pub fn build(products: &[Product], cart: &Cart) -> Self {
         let mut lines = Vec::new();
         let mut item_count = 0;
-        let mut total_cents = 0_i64;
-        let mut currency = String::new();
+        let mut total = 0_i64;
 
         for (id, quantity) in &cart.0 {
             let Some(product) = products.iter().find(|product| product.id == *id) else {
                 continue;
             };
-            let (symbol, cents) = parse_price(&product.price).unwrap_or_default();
-            if currency.is_empty() {
-                currency = symbol.clone();
-            }
-            let line_cents = cents * i64::from(*quantity);
-            total_cents += line_cents;
+            let line_total = i64::from(product.price) * i64::from(*quantity);
+            total += line_total;
             item_count += quantity;
             lines.push(CartLine {
                 id: *id,
                 name: product.name.clone(),
                 packing: product.packing.clone(),
-                unit_price: product.price.clone(),
+                unit_price: format_euro(i64::from(product.price)),
                 quantity: *quantity,
                 stock: product.stock,
-                line_total: format_money(&symbol, line_cents),
+                line_total: format_euro(line_total),
             });
         }
 
-        if currency.is_empty() {
-            currency = "€".to_string();
-        }
         Self {
             lines,
             item_count,
-            total: format_money(&currency, total_cents),
+            total: format_euro(total),
         }
     }
 }
 
-/// Parses prices like "€10" or "$9.50" into (currency symbol, cents).
-pub fn parse_price(price: &str) -> Option<(String, i64)> {
-    let symbol: String = price
-        .chars()
-        .filter(|c| !c.is_ascii_digit() && !matches!(c, '.' | ',') && !c.is_whitespace())
-        .collect();
-    let number: String = price
-        .chars()
-        .filter(|c| c.is_ascii_digit() || matches!(c, '.' | ','))
-        .collect::<String>()
-        .replace(',', ".");
-    let (whole, fraction) = number.split_once('.').unwrap_or((number.as_str(), ""));
-    let whole: i64 = whole.parse().ok()?;
-    let fraction: String = fraction.chars().take(2).collect();
-    let cents = match fraction.len() {
-        0 => 0,
-        1 => fraction.parse::<i64>().ok()? * 10,
-        _ => fraction.parse::<i64>().ok()?,
-    };
-    Some((symbol, whole * 100 + cents))
-}
-
-pub fn format_money(symbol: &str, cents: i64) -> String {
-    format!("{symbol}{}.{:02}", cents / 100, cents % 100)
+/// Formats a whole-euro amount, e.g. `10` -> "€10".
+pub fn format_euro(amount: i64) -> String {
+    format!("€{amount}")
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn product(id: Uuid, price: &str, stock: i32) -> Product {
+    fn product(id: Uuid, price: i32, stock: i32) -> Product {
         Product {
             id,
             name: "Beans".into(),
             description: String::new(),
             packing: "1kg".into(),
-            price: price.into(),
+            price,
             stock,
         }
     }
 
     #[test]
-    fn parses_prices() {
-        assert_eq!(parse_price("€10"), Some(("€".into(), 1000)));
-        assert_eq!(parse_price("$9.5"), Some(("$".into(), 950)));
-        assert_eq!(parse_price("€8,25"), Some(("€".into(), 825)));
-        assert_eq!(parse_price("free"), None);
-    }
-
-    #[test]
-    fn formats_money() {
-        assert_eq!(format_money("€", 1005), "€10.05");
-        assert_eq!(format_money("€", 0), "€0.00");
+    fn formats_euro() {
+        assert_eq!(format_euro(10), "€10");
+        assert_eq!(format_euro(0), "€0");
     }
 
     #[test]
@@ -221,24 +156,15 @@ mod tests {
     }
 
     #[test]
-    fn cart_roundtrip_ignores_garbage() {
-        let id = Uuid::from_u128(2);
-        let mut cart = Cart::default();
-        cart.add(id, 2, 5);
-        let encoded = format!("{}|garbage|{}:-1", cart.encode(), Uuid::from_u128(3));
-        assert_eq!(Cart::parse(&encoded), cart);
-    }
-
-    #[test]
     fn summary_totals() {
         let a = Uuid::from_u128(4);
         let b = Uuid::from_u128(5);
-        let products = vec![product(a, "€10", 5), product(b, "€8", 5)];
+        let products = vec![product(a, 10, 5), product(b, 8, 5)];
         let mut cart = Cart::default();
         cart.add(a, 2, 5);
         cart.add(b, 1, 5);
         let summary = CartSummary::build(&products, &cart);
         assert_eq!(summary.item_count, 3);
-        assert_eq!(summary.total, "€28.00");
+        assert_eq!(summary.total, "€28");
     }
 }
