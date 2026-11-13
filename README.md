@@ -1,11 +1,8 @@
 # Rust Sandbox
 
-[![Rust](https://img.shields.io/badge/rust-1.93.1-ffc832.svg?logo=rust&logoColor=ffc832)](https://www.rust-lang.org)
-[![Axum](https://img.shields.io/badge/axum-0.8.9-ffc832.svg?logo=axum&logoColor=ffc832)](https://ktor.io)
-[![Warp](https://img.shields.io/badge/warp-0.4.3-ffc832.svg?logo=warp&logoColor=ffc832)](https://ktor.io)
-[![Cargo](https://img.shields.io/badge/cargo-1.93.1-ffc832.svg?logo=rust&logoColor=ffc832)](https://www.rust-lang.org)
-[![TypeScript](https://img.shields.io/badge/typescript-5.9.3-3178c6.svg?logo=typescript&logoColor=3178c6)](https://www.typescriptlang.org)
-[![React](https://img.shields.io/badge/react-19.2.0-58c4dc.svg?logo=react&logoColor=58c4dc)](https://react.dev)
+[![Rust](https://img.shields.io/badge/rust-1.100-ffc832.svg?logo=rust&logoColor=ffc832)](https://www.rust-lang.org)
+[![TypeScript](https://img.shields.io/badge/typescript-5.9-3178c6.svg?logo=typescript&logoColor=3178c6)](https://www.typescriptlang.org)
+[![React](https://img.shields.io/badge/react-19.2-58c4dc.svg?logo=react&logoColor=58c4dc)](https://react.dev)
 [![NodeJS](https://img.shields.io/badge/node.js-stable-417e38.svg?logo=nodedotjs&logoColor=417e38)](https://nodejs.org)
 [![GitHub license](https://img.shields.io/badge/license-Apache_2.0-e97726.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
@@ -17,6 +14,7 @@ All examples are written in [Rust](https://www.rust-lang.org) and built using [C
 Read details about the examples in their respective project roots.
 
 * [Axum REST API](./apps/rust-axum-api-rest)
+* [Axum CRUD SQLx](./apps/rust-axum-crud-sqlx)
 * [Warp REST API](./apps/rust-warp-api-rest)
 
 ## Architecture
