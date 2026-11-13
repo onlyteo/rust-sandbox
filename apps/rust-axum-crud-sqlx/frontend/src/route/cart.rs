@@ -107,7 +107,6 @@ async fn post_checkout(State(state): State<Arc<AppState>>) -> Response {
     }
 }
 
-/// Loads the open order and the cart derived from it. On failure returns a ready response.
 async fn load_cart(state: &AppState) -> Result<(Option<Order>, Cart), Box<Response>> {
     match state
         .orders_service()
@@ -146,7 +145,6 @@ async fn save_and_redirect(
     }
 }
 
-/// Adds to (`add`) or sets the cart quantity for a product, capped at stock, then redirects.
 async fn update_quantity(
     state: &AppState,
     form: QuantityForm,

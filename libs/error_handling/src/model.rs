@@ -23,7 +23,6 @@ pub struct ProblemDetails {
 }
 
 impl ProblemDetails {
-    /// `instance` is left empty here; the error handling middleware fills it in from the request path.
     pub fn new(problem_type: &str, title: &str, status: StatusCode, detail: &str) -> Self {
         Self {
             id: Uuid::new_v4(),
@@ -37,19 +36,39 @@ impl ProblemDetails {
     }
 
     pub fn bad_request(detail: &str) -> Self {
-        Self::new("urn:http:bad-request", "Bad Request", StatusCode::BAD_REQUEST, detail)
+        Self::new(
+            "urn:http:bad-request",
+            "Bad Request",
+            StatusCode::BAD_REQUEST,
+            detail,
+        )
     }
 
     pub fn unauthorized(detail: &str) -> Self {
-        Self::new("urn:security:unauthorized", "Unauthorized", StatusCode::UNAUTHORIZED, detail)
+        Self::new(
+            "urn:security:unauthorized",
+            "Unauthorized",
+            StatusCode::UNAUTHORIZED,
+            detail,
+        )
     }
 
     pub fn forbidden(detail: &str) -> Self {
-        Self::new("urn:security:forbidden", "Forbidden", StatusCode::FORBIDDEN, detail)
+        Self::new(
+            "urn:security:forbidden",
+            "Forbidden",
+            StatusCode::FORBIDDEN,
+            detail,
+        )
     }
 
     pub fn not_found(detail: &str) -> Self {
-        Self::new("urn:http:not-found", "Not Found", StatusCode::NOT_FOUND, detail)
+        Self::new(
+            "urn:http:not-found",
+            "Not Found",
+            StatusCode::NOT_FOUND,
+            detail,
+        )
     }
 
     pub fn internal_server_error(detail: &str) -> Self {

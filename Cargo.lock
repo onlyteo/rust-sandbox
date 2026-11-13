@@ -2031,17 +2031,23 @@ name = "rust-axum-rest-api-backend"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "auth_handling",
  "axum",
+ "chrono",
+ "error_handling",
+ "http-body-util",
  "observability",
  "serde",
  "serde_derive",
  "serde_json",
  "server",
+ "strum",
  "thiserror",
  "tokio",
  "tower",
  "tower-http 0.7.0",
  "tracing",
+ "uuid",
  "yaml_config",
 ]
 

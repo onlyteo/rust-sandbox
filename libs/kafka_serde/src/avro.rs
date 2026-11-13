@@ -6,7 +6,6 @@ use serde::de::DeserializeOwned;
 
 use crate::{KafkaSerde, KafkaSerdeError};
 
-/// Serializes/deserializes payloads as raw Avro, encoded against a fixed schema.
 #[derive(Clone)]
 pub struct AvroSerde {
     schema: Schema,

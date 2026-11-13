@@ -14,6 +14,8 @@ path = "src/lib.rs"
 server = { path = "../../../libs/server", features = ["axum", "tokio"] }
 yaml_config = { path = "../../../libs/yaml_config" }
 observability = { path = "../../../libs/observability" }
+error_handling = { path = "../../../libs/error_handling" }
+auth_handling = { path = "../../../libs/auth_handling", features = ["basic_auth"] }
 
 axum = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
@@ -23,5 +25,11 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 serde_derive = { workspace = true }
 tracing = { workspace = true }
+uuid = { workspace = true, features = ["v4", "serde"] }
 thiserror = { workspace = true }
 anyhow = { workspace = true }
+chrono = { workspace = true }
+strum = { workspace = true }
+
+[dev-dependencies]
+http-body-util = { workspace = true }

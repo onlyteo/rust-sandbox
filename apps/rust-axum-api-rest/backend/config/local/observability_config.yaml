@@ -1,5 +1,4 @@
 logging:
   level: "INFO"
   directives:
-    - "sqlx=WARN"
-    - "rust_axum_crud_sqlx_backend=DEBUG"
+    - "rust_axum_rest_api_backend=DEBUG"

@@ -3,7 +3,6 @@ use serde::de::DeserializeOwned;
 
 use crate::{KafkaSerde, KafkaSerdeError};
 
-/// Serializes/deserializes payloads as JSON.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct JsonSerde;
 

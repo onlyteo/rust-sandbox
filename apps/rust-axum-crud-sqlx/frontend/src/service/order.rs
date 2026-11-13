@@ -93,7 +93,6 @@ impl OrderService {
         }
     }
 
-    /// Returns the user's open order, if any.
     pub async fn find_open_order(
         &self,
         principal: Arc<BootstrapPrincipal>,
@@ -104,7 +103,6 @@ impl OrderService {
             .find(|order| order.status == OrderStatus::Open))
     }
 
-    /// Persists the cart to the open order, creating the order if needed.
     pub async fn save_cart(
         &self,
         principal: Arc<BootstrapPrincipal>,

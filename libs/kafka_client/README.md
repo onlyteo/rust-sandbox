@@ -84,7 +84,6 @@ let mut stream = consumer.stream();
 while let Some(message) = stream.next().await {
     let message = message?;
     let event: MyEvent = consumer.deserialize_payload(&message)?;
-    // handle event
 }
 ```
 

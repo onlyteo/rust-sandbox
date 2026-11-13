@@ -4,7 +4,6 @@ use uuid::Uuid;
 
 use crate::model::{Order, OrderProduct, Product};
 
-/// Shopping cart (product id -> quantity), backed by the user's open order.
 #[derive(Default, Clone, Debug, PartialEq)]
 pub struct Cart(BTreeMap<Uuid, i32>);
 
@@ -19,13 +18,11 @@ impl Cart {
         Self(items)
     }
 
-    /// Adds to the existing quantity, capped at `stock`.
     pub fn add(&mut self, id: Uuid, quantity: i32, stock: i32) {
         let current = self.0.get(&id).copied().unwrap_or(0);
         self.set(id, current.saturating_add(quantity), stock);
     }
 
-    /// Sets the quantity, capped at `stock`; zero or less removes the product.
     pub fn set(&mut self, id: Uuid, quantity: i32, stock: i32) {
         let quantity = quantity.min(stock);
         if quantity > 0 {
@@ -114,7 +111,6 @@ impl CartSummary {
     }
 }
 
-/// Formats a whole-euro amount, e.g. `10` -> "€10".
 pub fn format_euro(amount: i64) -> String {
     format!("€{amount}")
 }
