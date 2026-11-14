@@ -1,8 +1,8 @@
+use axum::Router;
 use axum::response::Html;
 use axum::routing::get;
-use axum::Router;
 
-pub fn resource_routes() -> Router {
+pub fn resource_routes<S: Clone + Send + Sync + 'static>() -> Router<S> {
     Router::new().route("/", get(get_resources))
 }
 

@@ -1,7 +1,8 @@
 use observability::init_observability;
 use rust_axum_rest_api_frontend_api::{
-    config::{load_observability_config, load_server_config},
+    config::{load_app_config, load_observability_config, load_server_config},
     route,
+    state::AppState,
 };
 use server::{
     axum::axum_server,
@@ -11,11 +12,12 @@ use server::{
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let server_config = load_server_config()?;
+    let app_config = load_app_config()?;
     let observability_config = load_observability_config()?;
 
     init_observability(&observability_config)?;
 
-    let routes = route::routes();
+    let routes = route::routes(AppState::new(app_config));
     let server_task = axum_server(routes, server_config).await;
     let signal_task = shutdown_signal();
 

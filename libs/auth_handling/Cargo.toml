@@ -4,16 +4,12 @@ version = "1.0.0"
 edition.workspace = true
 
 [features]
-basic_auth = ["dep:base64", "dep:headers", "dep:axum", "dep:error_handling"]
+basic_auth = ["dep:headers", "dep:axum", "dep:error_handling"]
 
 [dependencies]
 error_handling = { path = "../error_handling", optional = true }
 
 serde = { workspace = true, features = ["derive"] }
-serde_yaml = { workspace = true }
-anyhow = { workspace = true }
-thiserror = { workspace = true }
 tracing = { workspace = true }
 headers = { workspace = true, optional = true }
-base64 = { workspace = true, optional = true }
 axum = { workspace = true, optional = true }

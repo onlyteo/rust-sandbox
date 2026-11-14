@@ -1,49 +1,57 @@
-import React, {FC, ReactElement, useCallback, useReducer} from "react";
-import {Col, Container, Row} from "react-bootstrap";
-import {GreetingAlert, GreetingForm} from "../fragments";
-import {greetingReducer, initialGreetingState} from "../state/reducers";
-import {POST} from "../state/client";
-import {Greeting, Person} from "../types";
+import React, {FC, ReactElement} from "react";
+import {Link} from "react-router-dom";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCartShopping} from "@fortawesome/free-solid-svg-icons";
+import {AlertMessage, ProductCard} from "../fragments";
+import {formatEuro} from "../state/cart";
+import {useShop} from "../state/ShopContext";
 
 export const Home: FC = (): ReactElement => {
-    const [greetingState, greetingDispatch] = useReducer(greetingReducer, initialGreetingState);
-
-    const getGreeting = useCallback((person: Person) => {
-        greetingDispatch({status: 'LOADING'})
-        POST<Greeting, Person>("/api/greetings", person)
-            .then((response) => {
-                greetingDispatch({status: 'SUCCESS', data: response.data})
-            })
-            .catch(error => {
-                console.log("ERROR", error)
-                greetingDispatch({status: 'FAILED'})
-            });
-    }, [greetingDispatch]);
+    const {products, cart, alert} = useShop();
 
     return (
-        <Container>
-            <div className="description-box px-3 py-5 rounded-3">
-                <Row>
-                    <Col>
-                        <h2 className="emphasized-text">Welcome to this Rust example!</h2>
-                        <p>This example shows a React frontend and Rust/Axum REST API</p>
-                    </Col>
-                </Row>
-                <Row className="mt-5">
-                    <Col></Col>
-                    <Col xs={5}>
-                        <GreetingForm greetingState={greetingState} getGreeting={getGreeting}/>
-                    </Col>
-                    <Col></Col>
-                </Row>
-                <Row className="mt-4">
-                    <Col></Col>
-                    <Col xs={5}>
-                        <GreetingAlert greetingState={greetingState}/>
-                    </Col>
-                    <Col></Col>
-                </Row>
+        <>
+            <div className="row">
+                <div className="col">
+                    <h2 className="emphasized-text">Welcome to this Rust example!</h2>
+                    <p>This example shows a React frontend and Rust/Axum REST API</p>
+                </div>
             </div>
-        </Container>
+            <AlertMessage alert={alert}/>
+            <div className="row mt-4">
+                <div className="col">
+                    <div className="card emphasized-card cart-summary">
+                        <div className="card-body">
+                            <div className="d-flex justify-content-between align-items-center">
+                                <h5 className="card-title mb-0"><FontAwesomeIcon icon={faCartShopping}/> Your cart</h5>
+                                <Link className="btn btn-primary btn-sm" to="/cart">View cart</Link>
+                            </div>
+                            {cart.lines.length === 0 ? (
+                                <p className="text-muted mb-0 mt-3">Your cart is empty.</p>
+                            ) : (
+                                <>
+                                    <ul className="list-unstyled mt-3 mb-2">
+                                        {cart.lines.map((line) => (
+                                            <li key={line.id} className="d-flex justify-content-between">
+                                                <span>{line.quantity} &times; {line.name}</span>
+                                                <span>{formatEuro(line.lineTotal)}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <hr/>
+                                    <div className="d-flex justify-content-between fw-bold">
+                                        <span>Total ({cart.itemCount} items)</span>
+                                        <span>{formatEuro(cart.total)}</span>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-1">
+                {products.map((product) => <ProductCard key={product.id} product={product}/>)}
+            </div>
+        </>
     );
-}
+};

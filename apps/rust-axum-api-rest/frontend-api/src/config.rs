@@ -5,14 +5,7 @@ use yaml_config::{config::load_from_yaml, error::YamlConfigError};
 
 #[derive(Deserialize)]
 pub struct AppConfig {
-    pub user: AppUserConfig,
     pub backend: AppBackendConfig,
-}
-
-#[derive(Deserialize)]
-pub struct AppUserConfig {
-    pub name: String,
-    pub username: String,
 }
 
 #[derive(Deserialize)]
