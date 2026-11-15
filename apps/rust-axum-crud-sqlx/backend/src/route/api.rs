@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use auth_handling::basic::middleware::basic_auth_layer;
-use auth_handling::basic::model::BasicAuthPrincipal;
+use auth_handling::axum::basic::middleware::basic_auth;
+use auth_handling::model::BasicAuthPrincipal;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::routing::get;
@@ -17,7 +17,7 @@ pub fn api_routes() -> Router<Arc<AppState>> {
         .route("/api/products", get(get_products))
         .route("/api/orders", get(get_orders).post(post_order))
         .route("/api/orders/{id}", get(get_order).put(put_order))
-        .route_layer(basic_auth_layer())
+        .route_layer(basic_auth())
 }
 
 async fn get_products(

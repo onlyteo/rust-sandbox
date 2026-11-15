@@ -1,9 +1,9 @@
 use warp::Filter;
 
-const STATIC_RESOURCES_DIR: &str = "./resources/static";
+const STATIC_RESOURCES_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/resources/static");
 
-pub fn resources_filter(
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn resources_filter()
+-> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
     let index_file = format!("{}/index.html", STATIC_RESOURCES_DIR);
     let resources_path = warp::fs::dir(STATIC_RESOURCES_DIR);
     let root_path = warp::get()

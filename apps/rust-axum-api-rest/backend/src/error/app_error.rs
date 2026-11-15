@@ -17,20 +17,22 @@ impl AppError {
     pub fn order_not_found(id: Uuid) -> AppError {
         AppError::OrderNotFound { id }
     }
+}
 
-    fn problem(&self) -> ProblemDetails {
-        match self {
+impl Into<ProblemDetails> for AppError {
+    fn into(self) -> ProblemDetails {
+        match &self {
             AppError::OrderNotFound { .. } => ProblemDetails::new(
                 "urn:app:order-not-found",
                 "Order Not Found",
-                StatusCode::NOT_FOUND,
+                StatusCode::NOT_FOUND.as_u16(),
                 &self.to_string(),
             ),
             AppError::Repository(cause) => match cause {
                 RepositoryError::OrderAlreadyExists { .. } => ProblemDetails::new(
                     "urn:app:order-already-exists",
                     "Order Already Exists",
-                    StatusCode::CONFLICT,
+                    StatusCode::CONFLICT.as_u16(),
                     &self.to_string(),
                 ),
                 _ => ProblemDetails::internal_server_error("An internal error occurred"),
@@ -42,6 +44,7 @@ impl AppError {
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         tracing::error!("{self}"); // Error logging before API response is returned
-        self.problem().into_response()
+        let problem: ProblemDetails = self.into();
+        problem.into_response()
     }
 }

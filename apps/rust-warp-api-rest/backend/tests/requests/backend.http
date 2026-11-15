@@ -1,8 +1,40 @@
-### POST greeting
-POST http://localhost:8081/api/greetings
+### GET all products
+GET http://localhost:8081/api/products
+Accept: application/json
+
+### GET all orders
+GET http://localhost:8081/api/orders
+Accept: application/json
+
+### POST create order
+POST http://localhost:8081/api/orders
 Accept: application/json
 Content-Type: application/json
 
 {
-  "name": "John"
+  "products": [
+    {
+      "id": "6821a470-071b-4cf4-b993-43cc8b2a8827",
+      "quantity": 2
+    }
+  ]
+}
+
+### GET order by id
+GET http://localhost:8081/api/orders/6821a470-071b-4cf4-b993-43cc8b2a8827
+Accept: application/json
+
+### PUT update order
+PUT http://localhost:8081/api/orders/6821a470-071b-4cf4-b993-43cc8b2a8827
+Accept: application/json
+Content-Type: application/json
+
+{
+  "status": "COMPLETED",
+  "products": [
+    {
+      "id": "6821a470-071b-4cf4-b993-43cc8b2a8827",
+      "quantity": 3
+    }
+  ]
 }

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use auth_handling::basic::middleware::basic_auth_layer;
-use auth_handling::basic::model::BasicAuthPrincipal;
+use auth_handling::axum::basic::middleware::basic_auth;
+use auth_handling::model::BasicAuthPrincipal;
 use axum::body::{Body, Bytes};
 use axum::extract::{Request, State};
 use axum::http::{HeaderValue, StatusCode, header};
@@ -17,7 +17,7 @@ use crate::state::AppState;
 pub fn api_routes() -> Router<Arc<AppState>> {
     Router::new()
         .route("/api/{*path}", any(proxy))
-        .route_layer(basic_auth_layer())
+        .route_layer(basic_auth())
 }
 
 async fn proxy(

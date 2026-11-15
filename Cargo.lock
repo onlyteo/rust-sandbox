@@ -145,6 +145,7 @@ dependencies = [
  "headers",
  "serde",
  "tracing",
+ "warp",
 ]
 
 [[package]]
@@ -616,13 +617,14 @@ dependencies = [
 
 [[package]]
 name = "error_handling"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "axum",
  "chrono",
  "serde",
  "tracing",
  "uuid",
+ "warp",
 ]
 
 [[package]]
@@ -2002,13 +2004,20 @@ name = "rust-warp-rest-api-backend"
 version = "1.0.0"
 dependencies = [
  "anyhow",
+ "auth_handling",
+ "chrono",
+ "error_handling",
+ "headers",
  "observability",
  "serde",
  "serde_derive",
+ "serde_json",
  "server",
+ "strum",
  "thiserror",
  "tokio",
  "tracing",
+ "uuid",
  "warp",
  "yaml_config",
 ]
@@ -3106,6 +3115,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0a808122a8a77eecdabaefd88ddb1913c4be5ea1465399f63ba64c7aa705fea"
 dependencies = [
  "bytes",
+ "futures-channel",
  "futures-util",
  "headers",
  "http",

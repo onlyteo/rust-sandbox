@@ -9,16 +9,16 @@ use error_handling::model::ProblemDetails;
 use headers::{Authorization, HeaderMapExt, authorization::Basic};
 
 use crate::{
-    basic::model::{BasicAuthPrincipal, BasicAuthState},
-    model::BoxedFuture,
+    axum::basic::model::BasicAuthState,
+    model::{BasicAuthPrincipal, BoxedFuture},
 };
 
-pub fn basic_auth_layer() -> BasicAuthMiddlewareLayer {
+pub fn basic_auth() -> BasicAuthMiddleware {
     let state = BasicAuthState::new();
     axum::middleware::from_fn_with_state(state, basic_auth_middleware_boxed as BasicAuth)
 }
 
-pub type BasicAuthMiddlewareLayer = axum::middleware::FromFnLayer<
+pub type BasicAuthMiddleware = axum::middleware::FromFnLayer<
     BasicAuth,
     Arc<BasicAuthState>,
     (State<Arc<BasicAuthState>>, Request),

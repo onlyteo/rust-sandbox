@@ -4,12 +4,15 @@ version = "1.0.0"
 edition.workspace = true
 
 [features]
-basic_auth = ["dep:headers", "dep:axum", "dep:error_handling"]
+axum = ["dep:axum", "dep:headers", "dep:error_handling", "error_handling/axum"]
+warp = ["dep:warp", "dep:headers", "dep:error_handling"]
+basic_auth = []
 
 [dependencies]
-error_handling = { path = "../error_handling", optional = true }
+error_handling = { package = "error_handling", path = "../error_handling", default-features = false, optional = true }
 
 serde = { workspace = true, features = ["derive"] }
 tracing = { workspace = true }
 headers = { workspace = true, optional = true }
 axum = { workspace = true, optional = true }
+warp = { workspace = true, optional = true }

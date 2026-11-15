@@ -10,11 +10,11 @@ use crate::model::{BoxedFuture, ProblemDetails};
 
 const MAX_REJECTION_BODY: usize = 8 * 1024;
 
-pub fn error_handling_layer() -> ErrorHandlingMiddlewareLayer {
+pub fn error_handling() -> ErrorHandlingMiddleware {
     from_fn(error_handling_middleware_boxed as ErrorHandling)
 }
 
-pub type ErrorHandlingMiddlewareLayer = FromFnLayer<ErrorHandling, (), (Request,)>;
+pub type ErrorHandlingMiddleware = FromFnLayer<ErrorHandling, (), (Request,)>;
 
 type ErrorHandling = fn(Request, Next) -> BoxedFuture<Response>;
 
@@ -47,7 +47,7 @@ async fn error_handling_middleware(request: Request, next: Next) -> Response {
         let mut problem = ProblemDetails::new(
             &format!("urn:http:{}", reason.to_lowercase().replace(' ', "-")),
             reason,
-            status,
+            status.as_u16(),
             &detail,
         );
         problem.instance = instance;
