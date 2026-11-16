@@ -24,3 +24,4 @@ reqwest = { workspace = true, features = ["json"] }
 thiserror = { workspace = true }
 anyhow = { workspace = true }
 tracing = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }

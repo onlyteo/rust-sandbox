@@ -2532,6 +2532,7 @@ dependencies = [
  "anyhow",
  "auth_handling",
  "axum",
+ "chrono",
  "observability",
  "reqwest",
  "serde",
@@ -2571,6 +2572,7 @@ name = "rust-warp-rest-api-frontend-api"
 version = "1.0.0"
 dependencies = [
  "anyhow",
+ "chrono",
  "http-body-util",
  "hyper",
  "hyper-util",
