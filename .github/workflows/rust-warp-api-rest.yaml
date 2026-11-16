@@ -4,13 +4,51 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "apps/rust-warp-api-rest/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/rust-warp-api-rest.yaml"
+  pull_request:
+    paths:
+      - "apps/rust-warp-api-rest/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/rust-warp-api-rest.yaml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   APP: rust-warp-api-rest
 
 jobs:
+  npm-build:
+    name: NPM Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: apps/rust-warp-api-rest/frontend
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Set up node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/rust-warp-api-rest/frontend/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
   cargo-build:
-    if: ${{ github.actor != 'dependabot[bot]' }}
     name: Cargo Build
     runs-on: ubuntu-latest
     timeout-minutes: 10

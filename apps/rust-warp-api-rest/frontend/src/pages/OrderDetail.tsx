@@ -14,6 +14,11 @@ export const OrderDetail: FC = (): ReactElement => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!id) {
+            setOrder(undefined);
+            setLoading(false);
+            return;
+        }
         setLoading(true);
         getOrder(id)
             .then(setOrder)

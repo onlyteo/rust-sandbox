@@ -4,13 +4,51 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "apps/rust-axum-api-rest/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/rust-axum-api-rest.yaml"
+  pull_request:
+    paths:
+      - "apps/rust-axum-api-rest/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/rust-axum-api-rest.yaml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   APP: rust-axum-api-rest
 
 jobs:
+  npm-build:
+    name: NPM Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: apps/rust-axum-api-rest/frontend
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/rust-axum-api-rest/frontend/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
   cargo-build:
-    if: ${{ github.actor != 'dependabot[bot]' }}
     name: Cargo Build
     runs-on: ubuntu-latest
     timeout-minutes: 10

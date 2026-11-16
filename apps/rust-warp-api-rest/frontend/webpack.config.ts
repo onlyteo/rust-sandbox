@@ -1,3 +1,4 @@
+import {createRequire} from "module";
 import path from "path";
 import webpack from "webpack";
 import HtmlWebpackPlugin from "html-webpack-plugin";
@@ -5,6 +6,8 @@ import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import ESLintPlugin from "eslint-webpack-plugin";
 import ESLintWebpackPlugin from "eslint-webpack-plugin";
 import {TsconfigPathsPlugin} from "tsconfig-paths-webpack-plugin";
+
+const require = createRequire(import.meta.url);
 
 const webpackConfig = (env): {
     devtool: string;
@@ -37,7 +40,7 @@ const webpackConfig = (env): {
         plugins: [new TsconfigPathsPlugin()]
     },
     output: {
-        path: path.join(__dirname, "/dist"),
+        path: path.join(import.meta.dirname, "/dist"),
         filename: "build.js"
     },
     module: {
@@ -69,8 +72,8 @@ const webpackConfig = (env): {
     plugins: [
         new HtmlWebpackPlugin({
             filename: "index.html",
-            template: path.join(__dirname, "public", "index.html"),
-            favicon: path.join(__dirname, "public", "favicon.ico")
+            template: path.join(import.meta.dirname, "public", "index.html"),
+            favicon: path.join(import.meta.dirname, "public", "favicon.ico")
         }),
         new webpack.DefinePlugin({
             "process.env.PRODUCTION": env.production || !env.development,
@@ -82,7 +85,7 @@ const webpackConfig = (env): {
     ],
     devServer: {
         port: 3000,
-        static: path.join(__dirname, "dist"),
+        static: path.join(import.meta.dirname, "dist"),
         hot: true,
         open: true,
         compress: true,
