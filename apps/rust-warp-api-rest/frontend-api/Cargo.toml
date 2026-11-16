@@ -11,12 +11,18 @@ name = "rust_warp_rest_api_frontend_api"
 path = "src/lib.rs"
 
 [dependencies]
+server = { path = "../../../libs/server" }
+yaml_config = { path = "../../../libs/yaml_config" }
+observability = { path = "../../../libs/observability" }
+error_handling = { path = "../../../libs/error_handling", features = ["warp"] }
+auth_handling = { path = "../../../libs/auth_handling", features = ["warp", "basic_auth"] }
+
 warp = { workspace = true, features = ["server"] }
 tokio = { workspace = true, features = ["full"] }
 serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
-http-body-util = { workspace = true }
-hyper = { workspace = true }
-hyper-util = { workspace = true, features = ["full"] }
+reqwest = { workspace = true }
 anyhow = { workspace = true }
-chrono = { workspace = true, features = ["serde"] }
+tracing = { workspace = true }
+
+[dev-dependencies]
+warp = { workspace = true, features = ["server", "test"] }

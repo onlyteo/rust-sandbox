@@ -1,10 +1,22 @@
 mod api;
 mod resources;
 
+use std::sync::Arc;
+
+use error_handling::warp::middleware::error_handling;
+use warp::{Filter, Reply};
+
 use crate::route::api::api_filter;
 use crate::route::resources::resources_filter;
-use warp::Filter;
+use crate::state::AppState;
 
-pub fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    api_filter().or(resources_filter())
+pub fn routes(
+    state: Arc<AppState>,
+) -> impl Filter<Extract = (impl Reply,), Error = std::convert::Infallible> + Clone {
+    resources_filter()
+        .map(Reply::into_response)
+        .or(api_filter(state).map(Reply::into_response))
+        .unify()
+        .recover(error_handling)
+        .unify()
 }

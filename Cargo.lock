@@ -1295,7 +1295,6 @@ dependencies = [
  "socket2",
  "system-configuration",
  "tokio",
- "tower-layer",
  "tower-service",
  "tracing",
  "windows-registry",
@@ -2572,14 +2571,16 @@ name = "rust-warp-rest-api-frontend-api"
 version = "1.0.0"
 dependencies = [
  "anyhow",
- "chrono",
- "http-body-util",
- "hyper",
- "hyper-util",
+ "auth_handling",
+ "error_handling",
+ "observability",
+ "reqwest",
  "serde",
- "serde_json",
+ "server",
  "tokio",
+ "tracing",
  "warp",
+ "yaml_config",
 ]
 
 [[package]]
