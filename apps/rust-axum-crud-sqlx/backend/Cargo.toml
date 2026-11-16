@@ -15,7 +15,7 @@ server = { path = "../../../libs/server", features = ["axum", "tokio"] }
 yaml_config = { path = "../../../libs/yaml_config" }
 observability = { path = "../../../libs/observability" }
 error_handling = { path = "../../../libs/error_handling" }
-auth_handling = { path = "../../../libs/auth_handling", features = ["basic_auth"] }
+auth_handling = { path = "../../../libs/auth_handling", features = ["axum", "basic_auth"] }
 
 axum = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
@@ -24,14 +24,14 @@ tower-http = { workspace = true, features = ["fs", "trace"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_derive = { workspace = true }
-sqlx = { workspace = true, features = ["postgres", "runtime-tokio", "macros", "migrate", "uuid"] }
+sqlx = { workspace = true, features = ["postgres", "runtime-tokio", "macros", "migrate", "chrono", "uuid"] }
 uuid = { workspace = true, features = ["v4", "serde"] }
 tracing = { workspace = true }
-tracing-subscriber = { workspace = true }
 thiserror = { workspace = true }
 anyhow = { workspace = true }
-chrono = { workspace = true }
-strum = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+strum = { workspace = true, features = ["derive"] }
 
 [dev-dependencies]
 http-body-util = { workspace = true }
+postgres_testcontainer = { path = "../../../tests/postgres_testcontainer" }

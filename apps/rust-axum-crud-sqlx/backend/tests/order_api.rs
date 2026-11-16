@@ -1,3 +1,5 @@
+mod common;
+
 use axum::body::Body;
 use axum::http::{Method, Request, StatusCode};
 use http_body_util::BodyExt;
@@ -6,7 +8,6 @@ use rust_axum_crud_sqlx_backend::route;
 use rust_axum_crud_sqlx_backend::service::order::OrderService;
 use rust_axum_crud_sqlx_backend::service::product::ProductService;
 use rust_axum_crud_sqlx_backend::state::AppState;
-use sqlx::PgPool;
 use tower::ServiceExt;
 use uuid::Uuid;
 
@@ -17,8 +18,9 @@ async fn parse_order(response: axum::response::Response) -> Order {
     serde_json::from_slice(&body).unwrap()
 }
 
-#[sqlx::test]
-async fn create_order_returns_open_order(pool: PgPool) -> sqlx::Result<()> {
+#[tokio::test]
+async fn create_order_returns_open_order() -> anyhow::Result<()> {
+    let pool = common::setup_pool().await?;
     let order_service = OrderService::new(pool.clone());
     let product_service = ProductService::new(pool.clone());
     let app = route::routes(AppState::new(order_service, product_service));
@@ -29,6 +31,7 @@ async fn create_order_returns_open_order(pool: PgPool) -> sqlx::Result<()> {
     let response = app
         .oneshot(
             Request::builder()
+                .header("authorization", common::BASIC_AUTH)
                 .method(Method::POST)
                 .uri("/api/orders")
                 .header("content-type", "application/json")
@@ -52,8 +55,9 @@ async fn create_order_returns_open_order(pool: PgPool) -> sqlx::Result<()> {
     Ok(())
 }
 
-#[sqlx::test]
-async fn get_order_by_id_matches_created_order(pool: PgPool) -> sqlx::Result<()> {
+#[tokio::test]
+async fn get_order_by_id_matches_created_order() -> anyhow::Result<()> {
+    let pool = common::setup_pool().await?;
     let order_service = OrderService::new(pool.clone());
     let product_service = ProductService::new(pool.clone());
     let app = route::routes(AppState::new(order_service, product_service));
@@ -65,6 +69,7 @@ async fn get_order_by_id_matches_created_order(pool: PgPool) -> sqlx::Result<()>
         .clone()
         .oneshot(
             Request::builder()
+                .header("authorization", common::BASIC_AUTH)
                 .method(Method::POST)
                 .uri("/api/orders")
                 .header("content-type", "application/json")
@@ -78,6 +83,7 @@ async fn get_order_by_id_matches_created_order(pool: PgPool) -> sqlx::Result<()>
     let get_response = app
         .oneshot(
             Request::builder()
+                .header("authorization", common::BASIC_AUTH)
                 .uri(format!("/api/orders/{}", created.id))
                 .body(Body::empty())
                 .unwrap(),
@@ -92,8 +98,9 @@ async fn get_order_by_id_matches_created_order(pool: PgPool) -> sqlx::Result<()>
     Ok(())
 }
 
-#[sqlx::test]
-async fn get_order_by_missing_id_returns_not_found(pool: PgPool) -> sqlx::Result<()> {
+#[tokio::test]
+async fn get_order_by_missing_id_returns_not_found() -> anyhow::Result<()> {
+    let pool = common::setup_pool().await?;
     let order_service = OrderService::new(pool.clone());
     let product_service = ProductService::new(pool.clone());
     let app = route::routes(AppState::new(order_service, product_service));
@@ -101,6 +108,7 @@ async fn get_order_by_missing_id_returns_not_found(pool: PgPool) -> sqlx::Result
     let response = app
         .oneshot(
             Request::builder()
+                .header("authorization", common::BASIC_AUTH)
                 .uri(format!("/api/orders/{}", Uuid::new_v4()))
                 .body(Body::empty())
                 .unwrap(),
@@ -113,8 +121,9 @@ async fn get_order_by_missing_id_returns_not_found(pool: PgPool) -> sqlx::Result
     Ok(())
 }
 
-#[sqlx::test]
-async fn update_order_status_is_reflected(pool: PgPool) -> sqlx::Result<()> {
+#[tokio::test]
+async fn update_order_status_is_reflected() -> anyhow::Result<()> {
+    let pool = common::setup_pool().await?;
     let order_service = OrderService::new(pool.clone());
     let product_service = ProductService::new(pool.clone());
     let app = route::routes(AppState::new(order_service, product_service));
@@ -126,6 +135,7 @@ async fn update_order_status_is_reflected(pool: PgPool) -> sqlx::Result<()> {
         .clone()
         .oneshot(
             Request::builder()
+                .header("authorization", common::BASIC_AUTH)
                 .method(Method::POST)
                 .uri("/api/orders")
                 .header("content-type", "application/json")
@@ -143,6 +153,7 @@ async fn update_order_status_is_reflected(pool: PgPool) -> sqlx::Result<()> {
     let update_response = app
         .oneshot(
             Request::builder()
+                .header("authorization", common::BASIC_AUTH)
                 .method(Method::PUT)
                 .uri(format!("/api/orders/{}", created.id))
                 .header("content-type", "application/json")
@@ -166,8 +177,9 @@ async fn update_order_status_is_reflected(pool: PgPool) -> sqlx::Result<()> {
     Ok(())
 }
 
-#[sqlx::test]
-async fn list_orders_includes_created_order(pool: PgPool) -> sqlx::Result<()> {
+#[tokio::test]
+async fn list_orders_includes_created_order() -> anyhow::Result<()> {
+    let pool = common::setup_pool().await?;
     let order_service = OrderService::new(pool.clone());
     let product_service = ProductService::new(pool.clone());
     let app = route::routes(AppState::new(order_service, product_service));
@@ -179,6 +191,7 @@ async fn list_orders_includes_created_order(pool: PgPool) -> sqlx::Result<()> {
         .clone()
         .oneshot(
             Request::builder()
+                .header("authorization", common::BASIC_AUTH)
                 .method(Method::POST)
                 .uri("/api/orders")
                 .header("content-type", "application/json")
@@ -192,6 +205,7 @@ async fn list_orders_includes_created_order(pool: PgPool) -> sqlx::Result<()> {
     let list_response = app
         .oneshot(
             Request::builder()
+                .header("authorization", common::BASIC_AUTH)
                 .uri("/api/orders")
                 .body(Body::empty())
                 .unwrap(),

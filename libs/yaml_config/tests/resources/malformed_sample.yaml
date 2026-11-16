@@ -1,5 +1,5 @@
-name: "sample-app"
-port: 8080
+name: "sample-app
+port: [8080
 tags:
   - alpha
-  - beta
+   - beta

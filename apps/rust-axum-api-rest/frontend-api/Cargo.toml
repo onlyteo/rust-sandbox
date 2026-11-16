@@ -14,7 +14,7 @@ path = "src/lib.rs"
 server = { path = "../../../libs/server", features = ["axum", "tokio"] }
 yaml_config = { path = "../../../libs/yaml_config" }
 observability = { path = "../../../libs/observability" }
-auth_handling = { path = "../../../libs/auth_handling", features = ["basic_auth"] }
+auth_handling = { path = "../../../libs/auth_handling", features = ["axum", "basic_auth"] }
 
 axum = { workspace = true }
 tokio = { workspace = true, features = ["full"] }

@@ -26,6 +26,5 @@ uuid = { workspace = true, features = ["serde"] }
 thiserror = { workspace = true }
 anyhow = { workspace = true }
 tracing = { workspace = true }
-tracing-subscriber = { workspace = true }
-chrono = { workspace = true }
-strum = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+strum = { workspace = true, features = ["derive"] }

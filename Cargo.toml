@@ -14,6 +14,7 @@ members = [
     "apps/rust-axum-api-rest/frontend-api",
     "apps/rust-axum-crud-sqlx/backend",
     "apps/rust-axum-crud-sqlx/frontend",
+    "tests/postgres_testcontainer",
 ]
 
 [workspace.package]
@@ -36,11 +37,15 @@ http-body-util = "0.1"
 hyper = "1.12"
 hyper-util = "0.1"
 reqwest = "0.13"
-sqlx = { version = "0.9", features = ["postgres", "uuid", "macros", "chrono"] }
+sqlx = "0.9"
 uuid = "1.29"
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = "0.3"
 thiserror = "2.0"
 anyhow = "1.0"
-chrono = { version = "0.4", features = ["serde"] }
-strum = { version = "0.28", features = ["derive"] }
+chrono = "0.4"
+strum = "0.28"
+dtor = "1.0"
+
+testcontainers = "0.27"
+testcontainers-modules = "0.15"
