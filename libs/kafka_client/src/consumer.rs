@@ -1,4 +1,4 @@
-use kafka_serde::{JsonSerde, KafkaSerde};
+use kafka_serde::{JsonKafkaSerde, KafkaSerde};
 use rdkafka::consumer::{Consumer, DefaultConsumerContext, MessageStream, StreamConsumer};
 use rdkafka::message::{BorrowedMessage, Message};
 use serde::de::DeserializeOwned;
@@ -6,7 +6,7 @@ use serde::de::DeserializeOwned;
 use crate::config::{CommonConfig, ConsumerConfig, build_consumer_client_config};
 use crate::error::KafkaClientError;
 
-pub struct KafkaConsumer<S: KafkaSerde = JsonSerde> {
+pub struct KafkaConsumer<S: KafkaSerde = JsonKafkaSerde> {
     inner: StreamConsumer,
     serde: S,
 }
@@ -27,22 +27,22 @@ impl<S: KafkaSerde> KafkaConsumer<S> {
         self.inner.stream()
     }
 
-    pub fn deserialize_payload<T: DeserializeOwned>(
+    pub async fn deserialize_payload<T: DeserializeOwned>(
         &self,
         message: &BorrowedMessage<'_>,
     ) -> Result<T, KafkaClientError> {
         let payload = message.payload().unwrap_or_default();
-        let value = self.serde.deserialize(payload)?;
+        let value = self.serde.deserialize(payload).await?;
         Ok(value)
     }
 }
 
-impl KafkaConsumer<JsonSerde> {
+impl KafkaConsumer<JsonKafkaSerde> {
     pub fn new_json(
         common: &CommonConfig,
         consumer: &ConsumerConfig,
         topics: &[&str],
     ) -> Result<Self, KafkaClientError> {
-        Self::new(common, consumer, topics, JsonSerde)
+        Self::new(common, consumer, topics, JsonKafkaSerde)
     }
 }

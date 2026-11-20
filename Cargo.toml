@@ -31,7 +31,8 @@ serde = "1.0"
 serde_json = "1.0"
 serde_derive = "1.0"
 serde_yaml = "0.9"
-apache-avro = "0.22"
+apache-avro = "0.22" # Must be synked with version in schema_registry_converter
+schema_registry_converter = "6.0"
 headers = "0.4"
 http-body-util = "0.1"
 reqwest = "0.13"
@@ -45,5 +46,5 @@ chrono = "0.4"
 strum = "0.28"
 dtor = "1.0"
 
-testcontainers = "0.27"
+testcontainers = "0.27" # Must be synked with version in testcontainers-modules
 testcontainers-modules = "0.15"

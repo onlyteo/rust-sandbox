@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use kafka_serde::{JsonSerde, KafkaSerde};
+use kafka_serde::{JsonKafkaSerde, KafkaSerde};
 use rdkafka::producer::{FutureProducer, FutureRecord};
 use rdkafka::util::Timeout;
 use serde::Serialize;
@@ -10,7 +10,7 @@ use crate::error::KafkaClientError;
 
 const DEFAULT_SEND_TIMEOUT: Duration = Duration::from_secs(5);
 
-pub struct KafkaProducer<S: KafkaSerde = JsonSerde> {
+pub struct KafkaProducer<S: KafkaSerde = JsonKafkaSerde> {
     inner: FutureProducer,
     serde: S,
 }
@@ -56,16 +56,16 @@ impl<S: KafkaSerde> KafkaProducer<S> {
         key: Option<&str>,
         payload: &T,
     ) -> Result<(), KafkaClientError> {
-        let bytes = self.serde.serialize(payload)?;
+        let bytes = self.serde.serialize(payload).await?;
         self.send(topic, key.map(str::as_bytes), &bytes).await
     }
 }
 
-impl KafkaProducer<JsonSerde> {
+impl KafkaProducer<JsonKafkaSerde> {
     pub fn new_json(
         common: &CommonConfig,
         producer: &ProducerConfig,
     ) -> Result<Self, KafkaClientError> {
-        Self::new(common, producer, JsonSerde)
+        Self::new(common, producer, JsonKafkaSerde)
     }
 }

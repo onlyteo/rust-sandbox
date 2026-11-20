@@ -9,5 +9,5 @@ pub use config::{
 };
 pub use consumer::KafkaConsumer;
 pub use error::KafkaClientError;
-pub use kafka_serde::{JsonSerde, KafkaSerde};
+pub use kafka_serde::{JsonKafkaSerde, KafkaSerde};
 pub use producer::KafkaProducer;

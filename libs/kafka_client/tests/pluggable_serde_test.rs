@@ -1,5 +1,5 @@
 use kafka_client::{CommonConfig, ConsumerConfig, KafkaConsumer, KafkaProducer, ProducerConfig};
-use kafka_serde::{AvroSerde, KafkaSerde};
+use kafka_serde::{AvroKafkaSerde, KafkaSerde};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -12,7 +12,7 @@ fn common_config() -> CommonConfig {
     serde_yaml::from_str(r#"bootstrap.servers: "localhost:9092""#).unwrap()
 }
 
-fn event_schema() -> AvroSerde {
+fn event_schema() -> AvroKafkaSerde {
     let raw_schema = r#"
     {
         "type": "record",
@@ -23,7 +23,7 @@ fn event_schema() -> AvroSerde {
         ]
     }
     "#;
-    AvroSerde::from_schema_str(raw_schema).unwrap()
+    AvroKafkaSerde::from_schema_str(raw_schema).unwrap()
 }
 
 #[test]
@@ -40,9 +40,9 @@ async fn producer_and_consumer_are_pluggable_with_an_avro_codec() {
     let producer_config = ProducerConfig::default();
     let consumer_config: ConsumerConfig = serde_yaml::from_str(r#"group.id: "my-group""#).unwrap();
 
-    let _producer: KafkaProducer<AvroSerde> =
+    let _producer: KafkaProducer<AvroKafkaSerde> =
         KafkaProducer::new(&common, &producer_config, event_schema()).unwrap();
-    let _consumer: KafkaConsumer<AvroSerde> =
+    let _consumer: KafkaConsumer<AvroKafkaSerde> =
         KafkaConsumer::new(&common, &consumer_config, &["events"], event_schema()).unwrap();
 
     let event = Event {
@@ -50,8 +50,8 @@ async fn producer_and_consumer_are_pluggable_with_an_avro_codec() {
         message: "hello".to_string(),
     };
     let codec = event_schema();
-    let bytes = codec.serialize(&event).unwrap();
-    let decoded: Event = codec.deserialize(&bytes).unwrap();
+    let bytes = codec.serialize(&event).await.unwrap();
+    let decoded: Event = codec.deserialize(&bytes).await.unwrap();
     assert_eq!(decoded.id, event.id);
     assert_eq!(decoded.message, event.message);
 }
