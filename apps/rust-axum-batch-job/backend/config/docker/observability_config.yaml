@@ -1,0 +1,4 @@
+logging:
+  level: "WARN"
+  directives:
+    - "rust_axum_batch_job_backend=INFO"

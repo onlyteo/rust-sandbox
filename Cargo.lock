@@ -2504,6 +2504,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust-axum-batch-job-backend"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "chrono",
+ "observability",
+ "postgres_testcontainer",
+ "reqwest",
+ "serde",
+ "server",
+ "sqlx",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "uuid",
+ "yaml_config",
+]
+
+[[package]]
 name = "rust-axum-crud-sqlx-backend"
 version = "0.1.0"
 dependencies = [

@@ -1,0 +1,30 @@
+[package]
+name = "rust-axum-batch-job-backend"
+version = "0.1.0"
+edition.workspace = true
+
+[features]
+docker = []
+
+[lib]
+name = "rust_axum_batch_job_backend"
+path = "src/lib.rs"
+
+[dependencies]
+server = { path = "../../../libs/server", features = ["axum", "tokio"] }
+yaml_config = { path = "../../../libs/yaml_config" }
+observability = { path = "../../../libs/observability" }
+
+axum = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true, features = ["derive"] }
+sqlx = { workspace = true, features = ["postgres", "runtime-tokio", "macros", "migrate", "chrono", "uuid"] }
+reqwest = { workspace = true, features = ["json"] }
+tracing = { workspace = true }
+uuid = { workspace = true, features = ["v4", "serde"] }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+[dev-dependencies]
+chrono = { workspace = true }
+postgres_testcontainer = { path = "../../../tests/postgres_testcontainer" }

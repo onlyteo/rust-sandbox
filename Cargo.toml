@@ -14,6 +14,7 @@ members = [
     "apps/rust-axum-api-rest/frontend-api",
     "apps/rust-axum-crud-sqlx/backend",
     "apps/rust-axum-crud-sqlx/frontend",
+    "apps/rust-axum-batch-job/backend",
     "tests/postgres_testcontainer",
 ]
 
